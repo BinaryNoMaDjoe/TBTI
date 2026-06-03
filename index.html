@@ -1447,6 +1447,7 @@ function renderQuestion() {
    ============================================================ */
 function selectAnswer(value) {
   answers[currentIdx] = value;
+  saveState('quiz');
 
   // Update option buttons
   const buttons = $('options-list').querySelectorAll('.option-btn');
@@ -1651,8 +1652,9 @@ function showResults() {
   $('result-timestamp').textContent =
     `报告生成于 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-  // Store for share
+  // Store for share + persist across refresh
   window._result = result;
+  saveState('result');
 }
 
 /* ============================================================
@@ -1791,12 +1793,59 @@ async function generateLongImage() {
 }
 
 /* ============================================================
+   PERSISTENCE
+   ============================================================ */
+function saveState(view) {
+  const state = { view, questionOrder, answers, currentIdx };
+  if (window._result) {
+    state.resultScores = window._result.scores;
+  }
+  try { localStorage.setItem('tbti_state', JSON.stringify(state)); } catch(e) {}
+}
+
+function clearState() {
+  try { localStorage.removeItem('tbti_state'); } catch(e) {}
+}
+
+function restoreState() {
+  try {
+    const raw = localStorage.getItem('tbti_state');
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    if (!state.questionOrder || !state.answers) return false;
+
+    questionOrder = state.questionOrder;
+    answers = state.answers;
+    currentIdx = state.currentIdx || 0;
+
+    if (state.view === 'result' && state.resultScores) {
+      // Rebuild result
+      const scores = state.resultScores;
+      const result = determineType(scores);
+      window._result = result;
+      showView('result');
+      showResults();
+      return true;
+    }
+
+    if (state.view === 'quiz' && currentIdx < 50) {
+      showView('quiz');
+      renderQuestion();
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+/* ============================================================
    RETAKE TEST
    ============================================================ */
 function retakeTest() {
+  clearState();
   questionOrder = [];
   answers = [];
   currentIdx = 0;
+  window._result = null;
   startQuiz();
 }
 
@@ -1804,7 +1853,9 @@ function retakeTest() {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  showView('intro');
+  if (!restoreState()) {
+    showView('intro');
+  }
 });
 
 // Keyboard navigation for desktop testing
