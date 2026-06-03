@@ -587,6 +587,36 @@ body {
 
 .result-footer .btn { width: 100%; max-width: 280px; }
 
+/* Save long-image loading overlay */
+.loading-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  flex-direction: column;
+  justify-content: center; align-items: center;
+  gap: 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.loading-overlay.active { display: flex; }
+
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Temporarily expand all cards during capture */
+#view-result.capturing .card { break-inside: avoid; }
+#view-result.capturing .card-body { display: block; animation: none; }
+
 .result-footer-links {
   display: flex; gap: 20px;
   font-size: 0.82rem;
@@ -700,6 +730,7 @@ body {
   }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -766,6 +797,7 @@ body {
     <div class="cards-section" id="cards-section"></div>
     <div class="result-footer">
       <button class="btn btn-primary" onclick="showShareCard()">分享我的结果</button>
+      <button class="btn btn-outline" onclick="generateLongImage()">📸 保存长图</button>
       <div class="result-footer-links">
         <a onclick="retakeTest()">重新测试</a>
       </div>
@@ -787,6 +819,12 @@ body {
       <div class="share-signature">TravelBookTypeIndicator@Binarynomadjoe&amp;@Surkea</div>
       <div class="share-card-hint">截图保存并分享给朋友</div>
     </div>
+  </div>
+
+  <!-- Loading overlay for long-image generation -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <span>正在生成长图…</span>
   </div>
 
 </div><!-- /app -->
@@ -1695,6 +1733,74 @@ function showShareCard() {
 function hideShareCard(e) {
   if (e && e.target !== $('share-overlay')) return;
   $('share-overlay').classList.remove('active');
+}
+
+/* ============================================================
+   GENERATE LONG IMAGE
+   ============================================================ */
+async function generateLongImage() {
+  const r = window._result;
+  if (!r) return;
+
+  // Check html2canvas loaded
+  if (typeof html2canvas === 'undefined') {
+    alert('图片生成组件加载失败，请检查网络连接后刷新页面重试。');
+    return;
+  }
+
+  const overlay = $('loading-overlay');
+  const resultView = $('view-result');
+
+  // Show loading
+  overlay.classList.add('active');
+
+  try {
+    // Temporarily expand all cards
+    const cards = resultView.querySelectorAll('.card');
+    const wasOpen = [];
+    cards.forEach(card => {
+      wasOpen.push(card.classList.contains('open'));
+      card.classList.add('open');
+    });
+
+    // Mark capturing state
+    resultView.classList.add('capturing');
+
+    // Wait for DOM to settle
+    await new Promise(r => setTimeout(r, 300));
+
+    // Capture
+    const canvas = await html2canvas(resultView, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#f7f4ef',
+      logging: false,
+      windowWidth: 420,
+    });
+
+    // Restore card states
+    cards.forEach((card, i) => {
+      if (!wasOpen[i]) card.classList.remove('open');
+    });
+    resultView.classList.remove('capturing');
+
+    // Download
+    const filename = `${r.fullCode}_${r.personality.nickname}_TBTI.png`;
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+  } catch (err) {
+    console.error('长图生成失败:', err);
+    // Restore on error
+    const cards = resultView.querySelectorAll('.card');
+    cards.forEach(c => c.classList.remove('open'));
+    resultView.classList.remove('capturing');
+    alert('长图生成失败，请重试。');
+  } finally {
+    overlay.classList.remove('active');
+  }
 }
 
 /* ============================================================
