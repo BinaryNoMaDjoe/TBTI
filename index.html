@@ -1798,9 +1798,16 @@ async function generateLongImage() {
         // and set background-color as inline style on each element.
         const win = clonedDoc.defaultView;
         clonedDoc.querySelectorAll('*').forEach(el => {
-          const bg = win.getComputedStyle(el).backgroundColor;
+          const cs = win.getComputedStyle(el);
+          // Background
+          const bg = cs.backgroundColor;
           if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
             el.style.backgroundColor = bg;
+          }
+          // Text color
+          const c = cs.color;
+          if (c && c !== 'rgba(0, 0, 0, 0)') {
+            el.style.color = c;
           }
         });
         // Shrink view to content height (not 100vh)
