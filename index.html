@@ -70,6 +70,7 @@ body {
   min-height: 100vh;
   padding: 24px 20px 40px;
   animation: fadeSlideIn 0.5s ease;
+  background-color: #f7f4ef;
 }
 .view.active { display: flex; }
 
@@ -426,11 +427,11 @@ body {
 }
 
 .card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
   overflow: hidden;
-  transition: box-shadow var(--transition);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-header {
@@ -1787,24 +1788,32 @@ async function generateLongImage() {
 
     // Capture — clone approach for clean rendering
     const canvas = await html2canvas(resultView, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
-      allowTaint: false,
       backgroundColor: '#f7f4ef',
       logging: false,
       onclone: function(clonedDoc) {
-        // Ensure cloned document has explicit backgrounds too
+        // ── CRITICAL: html2canvas cannot resolve CSS custom properties ──
+        // Walk every element in the clone, read its computed style,
+        // and set background-color as inline style on each element.
+        const win = clonedDoc.defaultView;
+        clonedDoc.querySelectorAll('*').forEach(el => {
+          const bg = win.getComputedStyle(el).backgroundColor;
+          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+            el.style.backgroundColor = bg;
+          }
+        });
+        // Shrink view to content height (not 100vh)
         const cv = clonedDoc.getElementById('view-result');
         if (cv) {
-          cv.style.backgroundColor = '#f7f4ef';
           cv.style.minHeight = 'auto';
           cv.style.height = 'auto';
+          cv.style.backgroundColor = '#f7f4ef';
         }
-        clonedDoc.querySelectorAll('.card').forEach(c => {
-          c.style.backgroundColor = '#ffffff';
+        // Kill bar animations on clone
+        clonedDoc.querySelectorAll('.dim-bar-fill').forEach(f => {
+          f.style.transition = 'none';
         });
-        const ds = clonedDoc.querySelector('.dimensions-section');
-        if (ds) ds.style.backgroundColor = '#ffffff';
       }
     });
 
