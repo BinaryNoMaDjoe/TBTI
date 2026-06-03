@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>TravelBook · 旅行人格测试</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f7f4ef;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --text-secondary: #8c8880;
+  --text-muted: #b8b4ac;
+  --border: #e8e4dc;
+  --accent: #2c2c2c;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Camp colors */
+  --camp-expedition: #b8956a;
+  --camp-stroll: #6b8b6f;
+  --camp-wild: #c47d7a;
+  --camp-adventure: #7b8cb8;
+}
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', 'Georgia', 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   APP CONTAINER
+   ============================================================ */
+.app {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  position: relative;
+  background: var(--bg);
+}
+
+/* ============================================================
+   VIEW TRANSITIONS
+   ============================================================ */
+.view {
+  display: none;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 24px 20px 40px;
+  animation: fadeSlideIn 0.5s ease;
+}
+.view.active { display: flex; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   INTRO VIEW
+   ============================================================ */
+.intro-view { justify-content: center; align-items: center; text-align: center; padding: 40px 24px; }
+
+.intro-icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 32px;
+  font-size: 36px;
+}
+
+.intro-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.intro-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 36px;
+  max-width: 300px;
+}
+
+.intro-meta {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.intro-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.intro-meta-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.intro-meta-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 14px 40px;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(44,44,44,0.15);
+}
+.btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(44,44,44,0.1); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:active { background: rgba(0,0,0,0.02); }
+
+.btn-sm { padding: 10px 24px; font-size: 0.85rem; }
+
+/* ============================================================
+   QUIZ VIEW
+   ============================================================ */
+.quiz-header {
+  margin-bottom: 32px;
+}
+
+.progress-info {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.progress-bar-track {
+  width: 100%; height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.quiz-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.question-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.8;
+  height: 7rem;
+  margin-bottom: 36px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.question-id {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-btn {
+  display: flex; align-items: center;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  transition: all 0.2s ease;
+  text-align: left;
+  letter-spacing: 0.02em;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.option-btn:active { transform: scale(0.985); }
+
+.option-btn.selected {
+  border-color: var(--accent);
+  background: #fafaf8;
+  box-shadow: var(--shadow-sm);
+}
+
+.option-btn.selected::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.option-btn:not(.selected)::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.quiz-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  padding-top: 16px;
+}
+
+.btn-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none;
+  font-family: inherit; font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px 0;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+.btn-back:hover { color: var(--text); }
+.btn-back:active { color: var(--text); }
+.btn-back.hidden { visibility: hidden; }
+
+.btn-back-arrow { font-size: 1.1rem; }
+
+/* ============================================================
+   RESULT VIEW
+   ============================================================ */
+.result-header {
+  text-align: center;
+  padding: 20px 0 28px;
+  position: relative;
+}
+
+.result-type-code {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.result-nickname {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+}
+
+.result-camp {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 16px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+/* ============================================================
+   PERCENTAGE BARS
+   ============================================================ */
+.dimensions-section {
+  margin: 8px 0 24px;
+  padding: 20px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.dimensions-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.dim-bar-row {
+  display: flex; align-items: center;
+  margin-bottom: 14px;
+}
+.dim-bar-row:last-child { margin-bottom: 0; }
+
+.dim-bar-label {
+  font-size: 0.78rem;
+  width: 36px;
+  text-align: right;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.dim-bar-label-right {
+  font-size: 0.78rem;
+  width: 36px;
+  text-align: left;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.dim-bar-track {
+  flex: 1; height: 6px;
+  background: #f0ede7;
+  border-radius: 3px;
+  margin: 0 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dim-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.dim-bar-fill::after {
+  content: '';
+  position: absolute; right: 0; top: 50%;
+  transform: translate(50%, -50%);
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid currentColor;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dim-bar-pct {
+  font-size: 0.75rem;
+  width: 34px;
+  text-align: center;
+  color: var(--text);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.cards-section {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+
+.card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 20px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s;
+}
+.card-header:active { background: rgba(0,0,0,0.01); }
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--text);
+}
+
+.card-arrow {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+.card.open .card-arrow { transform: rotate(180deg); }
+
+.card-body {
+  display: none;
+  overflow: hidden;
+}
+.card.open .card-body {
+  display: block;
+  animation: cardReveal 0.35s ease;
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-body-inner {
+  padding: 0 20px 20px;
+  font-size: 0.88rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.card-body-inner p { margin-bottom: 10px; }
+.card-body-inner p:last-child { margin-bottom: 0; }
+
+.card-body-inner ul {
+  list-style: none;
+  padding: 0;
+}
+
+.card-body-inner ul li {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 6px;
+}
+
+.card-body-inner ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
+
+.char-item {
+  display: flex; align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f2ed;
+  gap: 14px;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.char-item:last-child { border-bottom: none; }
+.char-item:only-child { border-bottom: none; }
+
+.char-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: #f5f2ed;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.char-info-name {
+  font-weight: 500;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.char-info-source {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.char-info-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.char-refresh-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f5f2ed;
+}
+
+.char-counter {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  min-width: 28px;
+  text-align: center;
+}
+
+.char-refresh-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 7px 18px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.char-refresh-btn:active { background: rgba(0,0,0,0.02); color: var(--text); border-color: var(--text-muted); }
+
+/* ============================================================
+   RESULT FOOTER
+   ============================================================ */
+.result-footer {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px;
+  padding: 8px 0 20px;
+}
+
+.result-timestamp {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.result-footer .btn { width: 100%; max-width: 280px; }
+
+.result-footer-links {
+  display: flex; gap: 20px;
+  font-size: 0.82rem;
+}
+
+.result-footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.result-footer-links a:hover { color: var(--text); }
+
+/* ============================================================
+   SHARE OVERLAY
+   ============================================================ */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  justify-content: center; align-items: center;
+  padding: 24px;
+  animation: fadeIn 0.3s ease;
+}
+.overlay.active { display: flex; }
+
+.share-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.share-card-close {
+  position: absolute; top: 12px; right: 16px;
+  background: none; border: none;
+  font-size: 1.3rem; color: var(--text-muted);
+  cursor: pointer; padding: 4px;
+}
+
+.share-card-code {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.share-card-nickname {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.share-card-bars {
+  margin-bottom: 20px;
+}
+
+.share-card-brand {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.share-card-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   GLOBAL SIGNATURE
+   ============================================================ */
+.global-signature {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  padding: 20px 0 8px;
+  opacity: 0.55;
+  user-select: none;
+}
+
+/* Push signature to bottom on short views */
+.intro-view .global-signature { margin-top: auto; }
+#view-result .result-footer { margin-top: auto; }
+
+.share-signature {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (min-width: 421px) {
+  body { padding: 20px 0; }
+  .app {
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    min-height: calc(100vh - 40px);
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============================================================
+       INTRO VIEW
+       ============================================================ -->
+  <div class="view active intro-view" id="view-intro">
+    <div class="intro-icon">🧳</div>
+    <h1 class="intro-title">发现你的<br>旅行人格</h1>
+    <p class="intro-subtitle">5 个维度，16 种旅行人格。<br>了解你的旅行偏好，找到最适合你的旅行方式。</p>
+    <div class="intro-meta">
+      <div class="intro-meta-item">
+        <span class="intro-meta-value">50</span>
+        <span class="intro-meta-label">题目</span>
+      </div>
+      <div class="intro-meta-item">
+        <span class="intro-meta-value">~5 min</span>
+        <span class="intro-meta-label">预计时间</span>
+      </div>
+      <div class="intro-meta-item">
+        <span class="intro-meta-value">逐题</span>
+        <span class="intro-meta-label">形式</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">开始测试</button>
+    <div class="global-signature">TravelBookTypeIndicator@Binarynomadjoe&amp;@Surkea</div>
+  </div>
+
+  <!-- ============================================================
+       QUIZ VIEW
+       ============================================================ -->
+  <div class="view" id="view-quiz">
+    <div class="quiz-header">
+      <div class="progress-info">
+        <span id="progress-text">第 1/50 题</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <span class="question-id" id="question-id"></span>
+      <p class="question-text" id="question-text"></p>
+      <div class="options-list" id="options-list"></div>
+    </div>
+    <div class="quiz-footer">
+      <button class="btn-back hidden" id="btn-prev" onclick="prevQuestion()">
+        <span class="btn-back-arrow">←</span> 上一题
+      </button>
+      <span></span>
+    </div>
+    <div class="global-signature">TravelBookTypeIndicator@Binarynomadjoe&amp;@Surkea</div>
+  </div>
+
+  <!-- ============================================================
+       RESULT VIEW
+       ============================================================ -->
+  <div class="view" id="view-result">
+    <div class="result-header" id="result-header"></div>
+    <div class="dimensions-section" id="dimensions-section"></div>
+    <div class="cards-section" id="cards-section"></div>
+    <div class="result-footer">
+      <button class="btn btn-primary" onclick="showShareCard()">分享我的结果</button>
+      <div class="result-footer-links">
+        <a onclick="retakeTest()">重新测试</a>
+      </div>
+      <span class="result-timestamp" id="result-timestamp"></span>
+      <div class="global-signature">TravelBookTypeIndicator@Binarynomadjoe&amp;@Surkea</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SHARE OVERLAY
+       ============================================================ -->
+  <div class="overlay" id="share-overlay" onclick="hideShareCard(event)">
+    <div class="share-card" id="share-card" onclick="event.stopPropagation()">
+      <button class="share-card-close" onclick="hideShareCard()">✕</button>
+      <div class="share-card-code" id="share-code"></div>
+      <div class="share-card-nickname" id="share-nickname"></div>
+      <div class="share-card-bars" id="share-bars"></div>
+      <div class="share-card-brand">TravelBook · TBTI 旅行人格测试</div>
+      <div class="share-signature">TravelBookTypeIndicator@Binarynomadjoe&amp;@Surkea</div>
+      <div class="share-card-hint">截图保存并分享给朋友</div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+/* ============================================================
+   DATA: 50 QUESTIONS
+   id: original ID from spec
+   text: question statement
+   dim: dimension 1-5
+   tendency: which end this question measures
+   ============================================================ */
+const QUESTIONS = [
+  // 维度一：P（计划）vs R（漫游）
+  { id:'P1', dim:1, tendency:'P', text:'出发前我会把住宿全部订好，不会到了再找' },
+  { id:'P2', dim:1, tendency:'P', text:'我会提前查好从机场到酒店的交通路线' },
+  { id:'P3', dim:1, tendency:'P', text:'我的手机里通常有一份详细的行程表' },
+  { id:'P4', dim:1, tendency:'P', text:'旅行前我会看大量攻略和评价' },
+  { id:'P5', dim:1, tendency:'P', text:'我喜欢提前预订热门餐厅，不想排队碰运气' },
+  { id:'R1', dim:1, tendency:'R', text:'最好的旅行体验往往来自没有计划的下午' },
+  { id:'R2', dim:1, tendency:'R', text:'我可能只订了机票就出发，剩下的到了再说' },
+  { id:'R3', dim:1, tendency:'R', text:'严格按行程表走会让我觉得被束缚' },
+  { id:'R4', dim:1, tendency:'R', text:'迷路也是旅行的一部分，我不需要时刻知道自己在哪' },
+  { id:'R5', dim:1, tendency:'R', text:'比起提前查好一切，我更享受临时发现的惊喜' },
+
+  // 维度二：S（特种兵）vs C（随性）
+  { id:'S1', dim:2, tendency:'S', text:'来都来了，能去的地方越多越好' },
+  { id:'S2', dim:2, tendency:'S', text:'我的旅行步数通常霸占朋友圈榜首' },
+  { id:'S3', dim:2, tendency:'S', text:'一天只去一个地方，我会觉得时间被浪费了' },
+  { id:'S4', dim:2, tendency:'S', text:'早起是旅行中最好的习惯，可以比别人多看好几个点' },
+  { id:'S5', dim:2, tendency:'S', text:'短暂的周末我也会安排一个短途旅行，不想闲着' },
+  { id:'C1', dim:2, tendency:'C', text:'旅行时我经常睡到自然醒' },
+  { id:'C2', dim:2, tendency:'C', text:'一个下午坐在咖啡馆看路人，对我来说就是完美的旅行时光' },
+  { id:'C3', dim:2, tendency:'C', text:'景点数量不重要，重要的是在每个地方的感受深度' },
+  { id:'C4', dim:2, tendency:'C', text:'排队超过半小时的景点，再有名我也不想进' },
+  { id:'C5', dim:2, tendency:'C', text:'行程排太满我会觉得像在赶任务，不像在度假' },
+
+  // 维度三：O（实物）vs E（意念）
+  { id:'O1', dim:3, tendency:'O', text:'食物的味道好不好，比它背后的故事更重要' },
+  { id:'O2', dim:3, tendency:'O', text:'我更相信亲眼看到的东西，而不是别人描述的感受' },
+  { id:'O3', dim:3, tendency:'O', text:'拍照时我关注的是构图和光线，而不是照片背后的意义' },
+  { id:'O4', dim:3, tendency:'O', text:'旅行中最打动我的是实实在在的风景，不是人为赋予的传说' },
+  { id:'O5', dim:3, tendency:'O', text:'一片风景的美不需要任何解释，它本身就是理由' },
+  { id:'E1', dim:3, tendency:'E', text:'去一个地方之前，我会先了解它的历史和文化背景' },
+  { id:'E2', dim:3, tendency:'E', text:'老建筑让我着迷，因为我能感受到它见证过的时光' },
+  { id:'E3', dim:3, tendency:'E', text:'旅行结束后，我脑子里留下来的是故事和感受，不是打卡清单' },
+  { id:'E4', dim:3, tendency:'E', text:'一片风景能打动我，往往是因为它让我想起了什么' },
+  { id:'E5', dim:3, tendency:'E', text:'我会因为一本书或一部电影而特意去一个地方' },
+
+  // 维度四：G（群游）vs N（独行）
+  { id:'G1', dim:4, tendency:'G', text:'旅行中我喜欢结交新朋友，和陌生人聊天不会尴尬' },
+  { id:'G2', dim:4, tendency:'G', text:'青旅、拼车、拼桌——这些与他人偶遇的瞬间是旅行的精华' },
+  { id:'G3', dim:4, tendency:'G', text:'一个人旅行太冷清了，我更喜欢有人一起' },
+  { id:'G4', dim:4, tendency:'G', text:'路上临时组队一起玩，对我来说很自然' },
+  { id:'G5', dim:4, tendency:'G', text:'旅行结束后，和旅途中认识的人保持联系让我很开心' },
+  { id:'N1', dim:4, tendency:'N', text:'我只想和伴侣或最亲密的朋友一起旅行，不需要认识新人' },
+  { id:'N2', dim:4, tendency:'N', text:'一个人旅行让我更自在，不需要迁就任何人' },
+  { id:'N3', dim:4, tendency:'N', text:'旅途中被陌生人搭话，我通常会礼貌但尽快结束' },
+  { id:'N4', dim:4, tendency:'N', text:'对我来说，最好的旅行是和自己待在一起' },
+  { id:'N5', dim:4, tendency:'N', text:'和太多人一起旅行会消耗我的精力' },
+
+  // 维度五：A（果敢）vs T（扰动）
+  { id:'A1', dim:5, tendency:'A', text:'旅行中做了决定之后，我很少后悔' },
+  { id:'A2', dim:5, tendency:'A', text:'别人觉得我的旅行方式奇怪，我完全不在意' },
+  { id:'A3', dim:5, tendency:'A', text:'旅行中遇到突发状况，我能很快冷静下来想办法' },
+  { id:'A4', dim:5, tendency:'A', text:'我选的路线就是最好的路线，不需要和别人比较' },
+  { id:'A5', dim:5, tendency:'A', text:'一趟旅行好不好，我自己知道就行，不需要发朋友圈证明' },
+  { id:'T1', dim:5, tendency:'T', text:'旅行回来后，我常常想「如果当时选了另一条路会怎样」' },
+  { id:'T2', dim:5, tendency:'T', text:'发了旅行照片后，我会频繁查看谁点赞了' },
+  { id:'T3', dim:5, tendency:'T', text:'看到别人去了我没去的地方，我会有点后悔' },
+  { id:'T4', dim:5, tendency:'T', text:'做旅行决定时，我经常在几个选项之间反复横跳' },
+  { id:'T5', dim:5, tendency:'T', text:'旅途中的一个小失误，会影响我好几个小时的心情' },
+];
+
+/* ============================================================
+   DATA: 16 PERSONALITIES
+   Keyed by 4-letter code (without A/T suffix).
+   A/T does not produce independent personality descriptions.
+   ============================================================ */
+const PERSONALITIES = {
+
+  /* ---- 远征（P+S）：计划 × 特种兵 ---- */
+  PSOG: {
+    code:'PSOG', nickname:'将军', camp:'远征', campKey:'expedition',
+    profile:'你做攻略的样子像在拟作战计划。航班、酒店、餐厅、备选餐厅、雨天方案——全部在出发前锁死。你不觉得累，你觉得这才叫安全感。到了目的地，你就是团队的默认指挥官，谁饿了谁累了谁掉队了你都知道。',
+    preferences: [
+      '每日行程从早八点排到晚十点，中间有精确的换场时间',
+      '经典景点必须扫完，「没去过 XX 等于没来过」是你的人生信条',
+      '一群人一起效率更高，但群聊里最后拍板的永远是你'
+    ],
+    strengths: [
+      '执行力极强，同样的时间你比别人多刷一倍内容',
+      '风险预判能力一流，基本不会出现「到了发现没开门」的情况',
+      '团队的主心骨，别人跟着你玩很安心'
+    ],
+    cautions: [
+      '计划被打乱时容易焦躁，给自己的弹性留得太少',
+      '有时候队友要的不是最优路线，是一起发呆的十分钟'
+    ],
+    suitable:'多城市串联行程、东京大阪京都、欧洲十日五国',
+    growth:'下一次，试着删除行程表里的一个下午，完全不做安排。最坏的结果可能是你发现那个下午是整个旅程最好的时光。',
+    characters: [
+      ['阿拉贡', '《指环王》', '远征领袖，每一步都有计划却不让人感觉被指挥'],
+      ['埃尔文·史密斯', '《进击的巨人》', '调查兵团团长，每次出征精确到秒，但他第一个冲出去'],
+      ['美国队长', '漫威', '战术板加团队心，不打没准备的仗']
+    ]
+  },
+
+  PSON: {
+    code:'PSON', nickname:'赏金猎人', camp:'远征', campKey:'expedition',
+    profile:'你有一份私藏的标记清单，每个点都是精确坐标。你不需要告诉任何人你的计划，因为你一个人执行得更快。你像一个拿着悬赏令的猎手，一个个景点是你需要「拿下」的目标。拍完照，打完卡，立刻下一个。',
+    preferences: [
+      '一个人出行效率最高，不用等任何人',
+      '机位、观景台、限定体验——优先级最高的永远是「必须亲眼看到」的东西',
+      '行程表在手机备忘录里写得密密麻麻，但你不会发到群里'
+    ],
+    strengths: [
+      '超高的独立行动力，不需要依赖任何人',
+      '目标明确，专注，极少被无关信息分散注意力',
+      '时间利用率极高，「排队两小时」的场景很少发生在你身上'
+    ],
+    cautions: [
+      '独自高效久了，偶尔会忘了旅行的终点不是打卡清单',
+      '拒绝别人的同行邀请太多，可能会错过意外的缘分'
+    ],
+    suitable:'城市暴走、机位巡礼、限定展览/活动、独自自驾',
+    growth:'留一站给自己——不需要拍照、不需要标记。打卡清单是无限长的，但一个地方的真正味道需要静止才能闻到。',
+    characters: [
+      ['曼达洛人', '《星球大战》', '独来独往，精准高效，下一个坐标永远在等待'],
+      ['里昂', '《这个杀手不太冷》', '一个人、一盆植物、一套精确的行动清单'],
+      ['约翰·威克', '《疾速追杀》', '目标明确，一个人解决所有问题，不留下多余痕迹']
+    ]
+  },
+
+  PSEG: {
+    code:'PSEG', nickname:'圣人', camp:'远征', campKey:'expedition',
+    profile:'你做计划不是为了打卡，是为了让每一站都有意义。你要带一群人去看一座千年的庙，不是因为它在攻略里排第一，是因为你想让他们也感受到你第一次读到它时的震撼。你是那种会在景点前给大家讲背景故事的人，而且别人真的会听。',
+    preferences: [
+      '目的地必须值得讲——有历史、有故事、有文化厚度',
+      '行程节奏紧凑但不是为了量，是为了让体验一层层叠加',
+      '喜欢带「懂的人」一起去，或者把不懂的人变成懂的人'
+    ],
+    strengths: [
+      '感染力强，能把枯燥的历史讲出画面感',
+      '你的行程有主题、有叙事，不是景点的堆砌',
+      '擅长照顾不同人的兴趣点，把一群人的体验调和在一起'
+    ],
+    cautions: [
+      '当别人对你的「意义」不感冒时，会有点受伤',
+      '太过执着于每站的深度，时间永远不够用'
+    ],
+    suitable:'丝绸之路、京都寺庙巡礼、罗马古迹、博物馆之旅',
+    growth:'不是每站都需要有说法。有些地方就是好看、好吃、好玩，不需要一千年的故事来支撑。试试当一次「肤浅的游客」。',
+    characters: [
+      ['甘道夫', '《指环王》', '知道所有历史的来路，但要你亲自走过才明白'],
+      ['欧比旺', '《星球大战》', '带徒弟走过银河，每个星球都有一个道理要讲'],
+      ['邓布利多', '《哈利·波特》', '准备了全部线索和路线，但脚下的路要各自走']
+    ]
+  },
+
+  PSEN: {
+    code:'PSEN', nickname:'朝圣者', camp:'远征', campKey:'expedition',
+    profile:'你心里有一张只有自己看得到的地图。上面的坐标不是景点，是某个作家喝过咖啡的店、某张专辑封面的拍摄地、某部电影里主角走过的桥。你为此准备很久，出发时不需要人陪。这不是旅行，这是赴约。',
+    preferences: [
+      '目的地有强烈的个人意义——一本书、一部电影、一段历史、一个执念',
+      '宁可不吃网红餐厅也要找到那家巷子深处的旧书店',
+      '一个人走，不需要解释，不需要迁就'
+    ],
+    strengths: [
+      '内心的驱动力极强，旅途中几乎不会感到无聊',
+      '感受力细腻，能从一个细节里拆出整个故事',
+      '在独处中获得能量，不依赖外部刺激'
+    ],
+    cautions: [
+      '期望值太高，现实和想象的落差有时会带来失落',
+      '全部沉浸在自己的世界里，可能错过周围的意外美好'
+    ],
+    suitable:'文学地图、电影取景地巡礼、圣地巡游、朝圣之路',
+    growth:'允许自己偏离一次原定路线。在你朝圣的地图上随机挑一个路口右转。你追寻的意义，可能不在终点，在那个走错的拐角。',
+    characters: [
+      ['弗罗多', '《指环王》', '为了一个念头走出夏尔，脚下是未知，心里是故乡'],
+      ['保罗·厄崔迪', '《沙丘》', '被命运召唤到沙漠深处，一个人走向命中注定的终点'],
+      ['乔尔', '《最后生还者》', '带着一份承诺穿越废土，每一步都是赴约']
+    ]
+  },
+
+  /* ---- 漫步（P+C）：计划 × 随性 ---- */
+  PCOG: {
+    code:'PCOG', nickname:'导演', camp:'漫步', campKey:'stroll',
+    profile:'你是那种会先订好酒店再决定去哪的人。给朋友们排了一个大致日程，但每个下午都留了空白。「到时候再说」是你最常用的句子。你享受的不是严格执行计划，而是看着一群人按你搭的框架自由发挥——就像一个导演，剧本有了，但好戏永远在现场。',
+    preferences: [
+      '住宿品质优先级高于景点密度',
+      '每天至少有一段时间完全不做安排',
+      '喜欢给同行的人推荐餐厅、路线、隐藏角落，但不强制'
+    ],
+    strengths: [
+      '节奏感好，知道什么时候该走什么时候该停',
+      '关心同行人的体验，善于察觉谁累了谁无聊',
+      '计划有弹性，不容易被突发状况打乱'
+    ],
+    cautions: [
+      '「到时候再说」太多，有时真的就什么都没做',
+      '过于迁就别人的节奏，自己想去的地方反而没去'
+    ],
+    suitable:'精品酒店度假、温泉旅行、美食之旅、闺蜜/情侣出行',
+    growth:'下次把日程表完全交给同伴。你只负责出现，不负责安排。看看别人编的剧本有什么不一样的惊喜。',
+    characters: [
+      ['莫妮卡', '《老友记》', '聚餐旅行节假日，剧本她来写，演就是你们的事了'],
+      ['莱斯利·诺普', '《公园与游憩》', '全镇活动策划师，流程一丝不苟但态度永远松弛'],
+      ['柊筱娅', '《摇曳露营》', '装备和路线安排妥当，到了营地就只管煮咖啡看风景']
+    ]
+  },
+
+  PCON: {
+    code:'PCON', nickname:'隐士', camp:'漫步', campKey:'stroll',
+    profile:'你把住处订好，大致圈一个活动范围，剩下的交给五感。不需要密集的景点，不需要热闹的同伴。一个人在巷子里走，闻到面包香就拐进去，看到好看的窗户就停下来拍一张。你的旅行像是把自己放进一幅画里，慢慢浸透。',
+    preferences: [
+      '住宿舒适度是底线要求',
+      '一天只安排一到两个锚点，其余时间随意',
+      '喜欢用步行丈量一座城，不喜欢赶公共交通'
+    ],
+    strengths: [
+      '极其擅长把普通角落变成享受',
+      '不会被 FOMO（错失恐惧）困扰',
+      '自我满足，不需要外部反馈来证明旅途值得'
+    ],
+    cautions: [
+      '太过沉浸自己的节奏，可能错过一些需要提前预约的体验',
+      '偶尔需要一点外界推力才能走出舒适区'
+    ],
+    suitable:'京都、清迈、大理、南法小镇、独自度假',
+    growth:'去一个热闹的地方——夜市、音乐节、青旅大厅。不用说话，只是看。偶尔被陌生人搭话也不逃。',
+    characters: [
+      ['哈尔', '《哈尔的移动城堡》', '移动的堡垒里关着不愿被打扰的自我，偶尔才放人进来'],
+      ['岸边露伴', '《JOJO》', '独自取材旅行，用五感丈量世界，不需要读者'],
+      ['薇尔莉特', '《紫罗兰永恒花园》', '一个人慢慢走遍大陆，用手触摸每一封信的温度']
+    ]
+  },
+
+  PCEG: {
+    code:'PCEG', nickname:'牧羊人', camp:'漫步', campKey:'stroll',
+    profile:'你知道哪里有好草地——不是字面意思。你知道哪个咖啡馆的窗边适合发呆，哪个公园的日落值得等，哪条街值得一群人一起慢慢走。你把大家带到那里，然后让他们自己吃草。你不是导游，你是那个搭建场景的人。',
+    preferences: [
+      '选地方的标准是「这里适合待多久」，不是「这里值不值得打卡」',
+      '一半时间带大家做同一件事，一半时间让大家各自散去',
+      '喜欢在出发前了解目的地的故事，到了再慢慢分享'
+    ],
+    strengths: [
+      '氛围制造者，聚人的能力一流',
+      '不焦虑，整个团队因为你而放松',
+      '对空间和时间的感知力强，知道哪里值得停留'
+    ],
+    cautions: [
+      '有时候团队里有人其实是想要更多计划的，你的松散会让他们不安',
+      '当大家意兴阑珊时，你可能一个人也提不起劲'
+    ],
+    suitable:'山林民宿、海边小屋、田野骑行、团队团建',
+    growth:'偶尔当一次被带领的人。让别人选地方、定路线、决定吃什么。你把「让大家开心」的担子放下一天。',
+    characters: [
+      ['千寻', '《千与千寻》', '她不是领头的，但所有人跟着她走到了最后'],
+      ['田中君', '《田中君总是如此慵懒》', '懒洋洋的但身边永远围着一群人，大家自己找位置坐下'],
+      ['波洛', '《东方快车谋杀案》', '把所有人在一个车厢里聚齐，让每个人的故事自己浮现']
+    ]
+  },
+
+  PCEN: {
+    code:'PCEN', nickname:'行者', camp:'漫步', campKey:'stroll',
+    profile:'你出发前会做功课——看很多书和纪录片，标记想去的地方。但你不是去打卡，你是去验证。当你站在那个地方的时候，你要把自己放进去，看看它和你想的一不一样。每一步都有意义，每一段路都是内心的一道题。你一个人走，不是为了安静，是为了足够深。',
+    preferences: [
+      '目的地有情感或精神上的连结',
+      '每天的路程有主题——今天是关于「告别」，明天是关于「重逢」',
+      '不介意慢到一天只去一个地方，感受透了才走'
+    ],
+    strengths: [
+      '深度感知力极强，能把旅行变成自我探索',
+      '独立且自洽，不需要外部认可',
+      '旅途中的写作、拍照、记录都带有强烈个人风格'
+    ],
+    cautions: [
+      '太沉溺于内心叙事，有时会脱离实际的当下',
+      '独自久了，再回到人群里可能需要缓冲'
+    ],
+    suitable:'圣地亚哥朝圣之路、四国遍路、西藏、冰岛环岛',
+    growth:'下次旅行，允许自己有一天不做任何事。不寻找意义，不梳理内心。只是吃饭、走路、躺下。',
+    characters: [
+      ['李慕白', '《卧虎藏龙》', '一步一步，不为抵达，为心中的道'],
+      ['渡边彻', '《挪威的森林》', '一个人旅行，每一步都是一道内心的填空题'],
+      ['爱德华·艾尔利克', '《钢之炼金术师》', '兄弟两人踏遍国土，每一步都在寻找一个答案']
+    ]
+  },
+
+  /* ---- 野生（R+S）：漫游 × 特种兵 ---- */
+  RSOG: {
+    code:'RSOG', nickname:'酋长', camp:'野生', campKey:'wild',
+    profile:'你不需要提前计划。一个下午在群里吼一声，明天就能凑出一队人。你是那个天生会带节奏的人，到了现场三言两语分配好路线、谁拍照、谁找吃的。陌生人跟着你玩一天也会觉得像认识了很久。你的旅行能量来自人群，人群的能量来自你。',
+    preferences: [
+      '临时组队是常态，同行人数不设上限',
+      '到了再说，手机现查，嘴巴现问',
+      '一天跑的地方不少，但路线是弯曲的不是直线的'
+    ],
+    strengths: [
+      '极强的临场调动能力，什么突发状况都压不住你',
+      '社交能量充沛，能和任何人快速熟络',
+      '气氛制造机，和你一起玩的人不会觉得无聊'
+    ],
+    cautions: [
+      '照顾所有人的热情有时候会消耗你自己',
+      '没有计划也可能意味着没有备份，偶尔会翻车'
+    ],
+    suitable:'音乐节、自驾车队、城市漫步团、青旅文化',
+    growth:'试一次一个人的短途旅行。没有群，不需要调动任何人。看看没有人群的时候，你还能不能自在地玩。',
+    characters: [
+      ['路飞', '《海贼王》', '在岛上喊一嗓子，船员就凑齐了，下一个岛永远是最棒的岛'],
+      ['星爵', '《银河护卫队》', '一群歪瓜裂枣被他凑成了银河最强战队'],
+      ['漩涡鸣人', '《火影忍者》', '嘴遁拉人，临时凑的队打最难的副本']
+    ]
+  },
+
+  RSON: {
+    code:'RSON', nickname:'孤狼', camp:'野生', campKey:'wild',
+    profile:'收拾行李只需要十分钟。走到火车站再看下一班车去哪。一个人暴走是常态，不需要问别人，不需要等人。你的旅行像一个即兴的独奏——没有谱，但每个音都落得准。人来人往是背景音，你是自己的主旋律。',
+    preferences: [
+      '一个人出行，决策速度极快',
+      '没有固定路线，跟着直觉走，随时转向',
+      '享受身体上的疲惫——徒步、骑行、爬山——这是你感受自己还活着的方式'
+    ],
+    strengths: [
+      '极致的自由度和行动力',
+      '直觉敏锐，常常在最后一刻做出最对的选择',
+      '耐力强，体能和意志都能撑起高强度行程'
+    ],
+    cautions: [
+      '独来独往太久，别人会觉得你难以接近',
+      '直觉也有失灵的时候，偶尔需要一个冷静的备选方案'
+    ],
+    suitable:'长途背包、骑行穿越、山地徒步、火车旅行',
+    growth:'报一次一日团。不需要交朋友，只是观察。看看别人怎么玩同一座城市，也许有值得借鉴的角度。',
+    characters: [
+      ['杰洛特', '《巫师》', '一个人、两把剑、没有目的地，狼到哪里都是陌生的路'],
+      ['格斯', '《剑风传奇》', '一把巨剑走完黑暗世界，不需要任何人的同情'],
+      ['麦克斯', '《疯狂的麦克斯》', '废土独行，只和引擎说话，偶尔救人只为了继续上路']
+    ]
+  },
+
+  RSEG: {
+    code:'RSEG', nickname:'牛仔', camp:'野生', campKey:'wild',
+    profile:'你像一个漫游的枪手——没有固定据点，但走到哪里都能拉起一支队伍。你用直觉导航，用故事结伴。你不需要地图，因为你相信最好的路线是走出来的。带人找到有光的地方是你与生俱来的天赋，而你从不觉得自己在「带」，你只是顺路。',
+    preferences: [
+      '去哪里不重要，跟谁去才重要，但「谁」常常是路上碰见的',
+      '对人群的直觉很强，一眼就知道谁适合一起走',
+      '目的地清单是活的，听到好玩的地方随时改道'
+    ],
+    strengths: [
+      '极具感染力，随手一指都能让人觉得「那里一定很好」',
+      '完全不怕计划被打乱，因为本来就没有计划',
+      '社交与冒险的完美平衡——有人一起疯，但不是负担'
+    ],
+    cautions: [
+      '太依赖直觉和运气，有一次不灵了可能会把别人也带偏',
+      '缺少一个稳定的锚点——不管是行程还是生活'
+    ],
+    suitable:'背包旅行、公路旅行、沙发客、打工换宿',
+    growth:'下一次，给自己一个锚点——提前订好第一天和最后一天。看看在有框架的前提下，你的即兴还能不能发光。',
+    characters: [
+      ['坂田银时', '《银魂》', '万事屋老板，路上捡来的人比计划召唤的还多'],
+      ['马尔科姆·雷诺兹', '《萤火虫》', '宁静号船长，没有永久航线但永远为下一站拉起一支队伍'],
+      ['香吉士', '《海贼王》', '漂泊的厨师，用料理和直觉找伙伴，闻香而来的人从不间断']
+    ]
+  },
+
+  RSEN: {
+    code:'RSEN', nickname:'彗星', camp:'野生', campKey:'wild',
+    profile:'你的出现像一颗彗星——突然、短暂、留下很长的光的尾巴。你一个人闯进一座城市，来得快走得也快，但你的记忆会在那个坐标上永久标记。不需要告诉任何人你来了，因为你的旅行本来就不是给谁看的。那些一瞬间击中心灵的瞬间——一片云、一首街角传来的歌——是你真正的目的地。',
+    preferences: [
+      '独自行动，完全按自己的节奏走',
+      '路线不可预测，可能在任何一个路口改变方向',
+      '旅行中留下大量的个人记录——涂鸦、便签、照片碎片'
+    ],
+    strengths: [
+      '拥有完全忠实于自己的旅行体验',
+      '灵感充沛，在独行中产生大量想法和创作冲动',
+      '不留遗憾——想转弯就转了，想停下就停了'
+    ],
+    cautions: [
+      '过于像一个过客，错过了一些需要时间去发酵的关系和体验',
+      '没有规划的独自出行有时也有安全隐患'
+    ],
+    suitable:'创意灵感之旅、摄影采风、城市短途逃亡、音乐/艺术现场',
+    growth:'在下一站多留一天。不急着飞走，看看你离开之后那个地方还有什么。一些需要时间才能浮现的东西。',
+    characters: [
+      ['斯派克', '《星际牛仔》', '像一颗彗星划过每个人的生命，然后消失，Bang'],
+      ['霍尔顿', '《麦田里的守望者》', '快速穿过纽约，脑子里留下一万个瞬间，然后从所有人的视野里消失'],
+      ['三藏', '《最游记》', '一个人穿越荒野，来去都快，留下的只有传说的痕迹']
+    ]
+  },
+
+  /* ---- 冒险（R+C）：漫游 × 随性 ---- */
+  RCOG: {
+    code:'RCOG', nickname:'海盗', camp:'冒险', campKey:'adventure',
+    profile:'你不是来打卡的，你是来生活的。到了一个新地方，先去菜市场买水果，和隔壁摊主聊天，问出两家本地人才去的馆子。白天你懒洋洋地晒太阳，晚上你把同一家青旅的陌生人变成一场火锅局。你不是游客，你是那个走到哪都能把身边变成「自己地盘」的人。',
+    preferences: [
+      '在一个地方待得足够久，久到认识楼下咖啡馆的店员',
+      '吃是第一优先级——不是为了打卡网红店，是真正找到好吃的',
+      '身边的人可以是任何人——本地人、背包客、刚认识五分钟的旅伴'
+    ],
+    strengths: [
+      '接地气的能力极强，能迅速融入陌生环境',
+      '让人感到舒适，别人和你一起旅行没有压力',
+      '知道如何「浪费」时间在美好的事物上'
+    ],
+    cautions: [
+      '太松散的时间感，有时候一天就这么躺过去了',
+      '完全融入当地，可能几乎没有「旅行」的自觉——会错过一些原本想体验的东西'
+    ],
+    suitable:'东南亚旅居、海岛生活、民宿打工、数字游民',
+    growth:'下一次，给自己定一条底线规则——比如每天必须去一个你不想去的地方。看看意外的边界在哪里。',
+    characters: [
+      ['杰克·斯派罗', '《加勒比海盗》', '有船有酒有队友，船不能换，队友随时换'],
+      ['乔巴', '《海贼王》', '边走边学医术，把每个遇到的人都当成了潜在的伙伴'],
+      ['波妞', '《悬崖上的金鱼姬》', '从海里跑到陆地，把一家人都变成朋友，顺便把房子变成船']
+    ]
+  },
+
+  RCON: {
+    code:'RCON', nickname:'航海家', camp:'冒险', campKey:'adventure',
+    profile:'你有自己的船，但没有固定的航线。漂到哪，就停在哪。不需要同伴，不需要目的地，你只需要海和风，以及随时靠岸的自由。一个人的旅行是最好的修行——海洋是你的道场，星辰是你的罗盘。',
+    preferences: [
+      '一个人，慢节奏，不设返程日',
+      '行程里有大量的空白——不是偷懒，是留给未知',
+      '喜欢辽阔的目的地——海边、草原、沙漠、高原'
+    ],
+    strengths: [
+      '内心极其稳定，不受外界噪音干扰',
+      '能在孤独中找到绝对的舒适',
+      '珍惜每一个当下，不焦虑过去和未来'
+    ],
+    cautions: [
+      '有时候漂得太远，和岸上的人失去了联系',
+      '太过习惯独处，再次融入社交可能需要更多的时间'
+    ],
+    suitable:'邮轮/帆船、边陲小镇、草原露营、沙漠穿越',
+    growth:'在下一站主动联系一个人——老朋友、家人、路上认识的旅伴。不需要一起走，只是一起吃一顿饭。',
+    characters: [
+      ['索隆', '《海贼王》', '路痴但从不停止一个人走，躺在地上看云就是最好的日子'],
+      ['小王子', '《小王子》', '一个人在星球间漫游，每颗星球只停一站，然后继续飞'],
+      ['比企谷八幡', '《春物》', '一个人去所有地方，享受独处，不需要任何人的认可']
+    ]
+  },
+
+  RCEG: {
+    code:'RCEG', nickname:'吟游诗人', camp:'冒险', campKey:'adventure',
+    profile:'你是那种会在篝火边弹吉他、在青旅天台讲故事的人。你不赶路，因为路上的每次相遇都是你下一首歌的素材。你的旅行不是从出发到抵达，是从一个故事到另一个故事。你收集世界的碎片，把它们拼成一首诗，然后唱给下一站遇见的人听。',
+    preferences: [
+      '和路上遇见的人一起走一段，然后各自告别',
+      '喜欢被故事包围——有故事的房子、有故事的食物、有故事的人',
+      '不在意景点，在有人的地方停下来'
+    ],
+    strengths: [
+      '创造回忆的能力极强，把平凡的相遇变成难忘的故事',
+      '开放、真诚、让人想和你分享',
+      '活在当下，不焦虑行程和安排'
+    ],
+    cautions: [
+      '容易陷入感性的漩涡，告别后需要时间消化',
+      '过于游牧的生活方式让长期关系难以维持'
+    ],
+    suitable:'背包旅行、边城小镇、音乐之旅、人文探访',
+    growth:'试着一个人走一段。没有听众，没有篝火。把那段故事只留给你自己，看看它在你心里长成什么样。',
+    characters: [
+      ['银古', '《虫师》', '走遍日本，遇见不同的人，收集虫的故事，然后继续上路'],
+      ['科拉', '《科拉传奇》', '走遍四个国度，每到一处都留下故事和改变了的人'],
+      ['纳兹', '《妖精的尾巴》', '走到哪公会就建到哪，每场战斗后都有新的伙伴和传说']
+    ]
+  },
+
+  RCEN: {
+    code:'RCEN', nickname:'冒险家', camp:'冒险', campKey:'adventure',
+    profile:'你一个人的旅行像是一本没有目录的书。随便翻到哪一页，就从那里开始读。你可以今天在沙漠看星星，明天在雪山脚下喝热巧克力。你不需要别人理解你的路线，因为有时候你自己也不知道下一步在哪。天地为伴，你就是自己的宇宙。',
+    preferences: [
+      '对未知保持全然的开放——没有预设，没有期待',
+      '一个人的冒险，体能与意志的双重挑战',
+      '自然大于城市，空旷大于拥挤'
+    ],
+    strengths: [
+      '无畏，有勇气踏上别人不敢走的路',
+      '独立思考，所有的决定完全属于自己的意愿',
+      '能从极简的旅行条件中找到不可思议的满足'
+    ],
+    cautions: [
+      '太过激进地追求「冒险」本身，可能忽视了安全',
+      '独自冒险久了，有时会忘记自己也需要停下来歇一歇'
+    ],
+    suitable:'越野自驾、极地之旅、火山徒步、高空跳伞/极限运动',
+    growth:'下一趟旅行，加一个你平时会跳过的「普通」目的地——主题乐园、温泉旅馆、购物街。看看平凡能不能打开新的感官。',
+    characters: [
+      ['林克', '《塞尔达传说》', '一个人在海拉鲁漫游，没有路线，只有远方'],
+      ['阿拉丁', '《阿拉丁》', '一个人闯进全新的世界，靠一颗心和一张飞毯走遍每个角落'],
+      ['小杰', '《全职猎人》', '从小岛出发，用纯粹的好奇心走遍世界，不管前面有什么']
+    ]
+  },
+};
+
+/* ============================================================
+   DIMENSION DEFINITIONS
+   ============================================================ */
+const DIMENSIONS = [
+  { id:1, left:'R', right:'P', leftLabel:'漫游', rightLabel:'计划',   label:'行程法则' },
+  { id:2, left:'C', right:'S', leftLabel:'随性', rightLabel:'特种兵', label:'能量节奏' },
+  { id:3, left:'E', right:'O', leftLabel:'意念', rightLabel:'实物',   label:'感知通道' },
+  { id:4, left:'N', right:'G', leftLabel:'独行', rightLabel:'群游',   label:'同行引力' },
+  { id:5, left:'T', right:'A', leftLabel:'扰动', rightLabel:'果敢',   label:'自我确信' },
+];
+
+const CAMP_CSS_VARS = {
+  expedition: 'var(--camp-expedition)',
+  stroll:     'var(--camp-stroll)',
+  wild:       'var(--camp-wild)',
+  adventure:  'var(--camp-adventure)',
+};
+
+/* ============================================================
+   LIKERT OPTIONS
+   ============================================================ */
+const LIKERT_OPTIONS = [
+  { value: 1, label: '非常不同意' },
+  { value: 2, label: '不同意' },
+  { value: 3, label: '一般' },
+  { value: 4, label: '同意' },
+  { value: 5, label: '非常同意' },
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let questionOrder = [];       // shuffled indices into QUESTIONS
+let answers = [];             // answers[orderIndex] = likert value (1-5) or null
+let currentIdx = 0;           // current position in questionOrder
+let autoAdvanceTimer = null;
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function $(id) { return document.getElementById(id); }
+
+/* ============================================================
+   VIEW SWITCHING
+   ============================================================ */
+function showView(name) {
+  ['view-intro','view-quiz','view-result'].forEach(id => {
+    const el = $(id);
+    el.classList.remove('active');
+    // Reset animation
+    el.style.animation = 'none';
+    el.offsetHeight; // trigger reflow
+    el.style.animation = '';
+  });
+  $(`view-${name}`).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   INTRO → QUIZ
+   ============================================================ */
+function startQuiz() {
+  questionOrder = shuffle([...Array(50).keys()]);
+  answers = new Array(50).fill(null);
+  currentIdx = 0;
+  showView('quiz');
+  renderQuestion();
+}
+
+/* ============================================================
+   RENDER QUESTION
+   ============================================================ */
+function renderQuestion() {
+  if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+
+  const qIndex = questionOrder[currentIdx];
+  const q = QUESTIONS[qIndex];
+  const answer = answers[currentIdx];
+
+  // Progress
+  const pct = Math.round((currentIdx / 50) * 100);
+  $('progress-text').textContent = `第 ${currentIdx + 1}/50 题`;
+  $('progress-pct').textContent = `${pct}%`;
+  $('progress-bar').style.width = `${pct}%`;
+
+  // Question
+  $('question-id').textContent = `#${q.id}`;
+  $('question-text').textContent = q.text;
+
+  // Options
+  const optsEl = $('options-list');
+  optsEl.innerHTML = '';
+  LIKERT_OPTIONS.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (answer === opt.value ? ' selected' : '');
+    btn.textContent = opt.label;
+    btn.addEventListener('click', () => selectAnswer(opt.value));
+    optsEl.appendChild(btn);
+  });
+
+  // Back button
+  const btnPrev = $('btn-prev');
+  if (currentIdx === 0) {
+    btnPrev.classList.add('hidden');
+  } else {
+    btnPrev.classList.remove('hidden');
+  }
+}
+
+/* ============================================================
+   SELECT ANSWER
+   ============================================================ */
+function selectAnswer(value) {
+  answers[currentIdx] = value;
+
+  // Update option buttons
+  const buttons = $('options-list').querySelectorAll('.option-btn');
+  buttons.forEach((btn, i) => {
+    btn.classList.toggle('selected', LIKERT_OPTIONS[i].value === value);
+  });
+
+  // Auto-advance after brief delay
+  if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
+  autoAdvanceTimer = setTimeout(() => {
+    if (currentIdx < 49) {
+      currentIdx++;
+      renderQuestion();
+      window.scrollTo(0, 0);
+    } else {
+      // All questions answered → results
+      showResults();
+    }
+  }, 350);
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function prevQuestion() {
+  if (currentIdx > 0) {
+    currentIdx--;
+    renderQuestion();
+    window.scrollTo(0, 0);
+  }
+}
+
+/* ============================================================
+   SCORING ALGORITHM
+   ============================================================ */
+function calculateScores() {
+  // For each dimension, sum scores from its 10 questions
+  const scores = {};
+  DIMENSIONS.forEach(dim => {
+    let sum = 0;
+    for (let i = 0; i < 50; i++) {
+      const qIndex = questionOrder[i];
+      const q = QUESTIONS[qIndex];
+      if (q.dim !== dim.id) continue;
+      const rawValue = answers[i];
+      if (rawValue === null) continue; // shouldn't happen
+
+      let score;
+      // Determine if this question is "forward" or "reverse"
+      // Forward = measuring the right-side letter (P, S, O, G, A)
+      const forwardLetters = ['P','S','O','G','A'];
+      if (forwardLetters.includes(q.tendency)) {
+        score = rawValue; // 1-5
+      } else {
+        score = 6 - rawValue; // reverse: 5→1, 4→2, etc.
+      }
+      sum += score;
+    }
+    // sum range: 10-50
+    const pct = Math.round((sum - 10) / 40 * 100);
+    // ≥50% → right letter (first end), <50% → left letter (second end)
+    const letter = pct >= 50 ? dim.right : dim.left;
+    scores[dim.id] = { sum, pct, letter };
+  });
+  return scores;
+}
+
+function determineType(scores) {
+  // Build 5-letter code
+  const code4 = scores[1].letter + scores[2].letter + scores[3].letter + scores[4].letter;
+  const atSuffix = scores[5].letter;
+  const fullCode = code4 + '-' + atSuffix;
+  const personality = PERSONALITIES[code4];
+  return { fullCode, code4, atSuffix, personality, scores };
+}
+
+/* ============================================================
+   SHOW RESULTS
+   ============================================================ */
+function showResults() {
+  const scores = calculateScores();
+  const result = determineType(scores);
+  const p = result.personality;
+  const campColor = CAMP_CSS_VARS[p.campKey];
+
+  // Random starting character index (0-2)
+  window._charIndex = Math.floor(Math.random() * p.characters.length);
+  window._characters = p.characters;
+
+  showView('result');
+
+  // Header
+  $('result-header').innerHTML = `
+    <div class="result-type-code" style="color:${campColor}">${result.fullCode}</div>
+    <div class="result-nickname">${p.nickname}</div>
+    <div class="result-camp" style="background:${campColor}15; color:${campColor}">${p.camp}</div>
+  `;
+
+  // Dimension bars
+  let barsHTML = '<div class="dimensions-title">五维度偏好分布</div>';
+  DIMENSIONS.forEach(dim => {
+    const s = scores[dim.id];
+    const isRight = s.letter === dim.right;
+    barsHTML += `
+      <div class="dim-bar-row">
+        <span class="dim-bar-label" style="color:${isRight ? 'var(--text-muted)' : campColor}; font-weight:${isRight ? '400' : '500'}">${dim.leftLabel} ${dim.left}</span>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill" style="width:${s.pct}%; background:${campColor}; color:${campColor}"></div>
+        </div>
+        <span class="dim-bar-pct">${s.pct}%</span>
+        <span class="dim-bar-label-right" style="color:${isRight ? campColor : 'var(--text-muted)'}; font-weight:${isRight ? '500' : '400'}">${dim.right} ${dim.rightLabel}</span>
+      </div>`;
+  });
+  $('dimensions-section').innerHTML = barsHTML;
+
+  // Animate bars after render
+  requestAnimationFrame(() => {
+    const fills = $('dimensions-section').querySelectorAll('.dim-bar-fill');
+    fills.forEach(f => {
+      const w = f.style.width;
+      f.style.width = '0%';
+      requestAnimationFrame(() => { f.style.width = w; });
+    });
+  });
+
+  // Cards
+  const cards = [
+    {
+      title: '人格画像',
+      open: true,
+      content: () => `
+        <p style="font-size:0.93rem;color:var(--text);line-height:1.9">${p.profile}</p>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:14px;margin-bottom:6px;letter-spacing:0.05em">旅行偏好</p>
+        <ul>${p.preferences.map(t => `<li>${t}</li>`).join('')}</ul>
+      `
+    },
+    {
+      title: '优势与短板',
+      open: false,
+      content: () => `
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.05em">优势</p>
+        <ul>${p.strengths.map(t => `<li>${t}</li>`).join('')}</ul>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:14px;margin-bottom:6px;letter-spacing:0.05em">注意</p>
+        <ul>${p.cautions.map(t => `<li>${t}</li>`).join('')}</ul>
+      `
+    },
+    {
+      title: '适合的目的地',
+      open: false,
+      content: () => `<p>${p.suitable}</p>`
+    },
+    {
+      title: '成长建议',
+      open: false,
+      content: () => `
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.05em">换个姿势</p>
+        <p style="font-style:italic">${p.growth}</p>
+      `
+    },
+    {
+      title: '角色对照',
+      open: false,
+      content: () => {
+        const ci = window._charIndex || 0;
+        const c = p.characters[ci];
+        const total = p.characters.length;
+        return `
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;letter-spacing:0.05em">如果你也喜欢这些角色，你们的旅行灵魂可能很像</p>
+        <div class="char-item" id="char-display">
+          <div class="char-avatar">🎭</div>
+          <div>
+            <div class="char-info-name">${c[0]}</div>
+            <div class="char-info-source">${c[1]}</div>
+            <div class="char-info-desc">${c[2]}</div>
+          </div>
+        </div>
+        <div class="char-refresh-row">
+          <span class="char-counter" id="char-counter">${ci + 1}/${total}</span>
+          <button class="char-refresh-btn" onclick="cycleCharacter()">🔄 换一个角色</button>
+        </div>`;
+      }
+    },
+  ];
+
+  let cardsHTML = '';
+  cards.forEach((card, i) => {
+    cardsHTML += `
+      <div class="card ${card.open ? 'open' : ''}" id="card-${i}">
+        <div class="card-header" onclick="toggleCard(${i})">
+          <span class="card-title">${card.title}</span>
+          <span class="card-arrow">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">${card.content()}</div>
+        </div>
+      </div>`;
+  });
+  $('cards-section').innerHTML = cardsHTML;
+
+  // Timestamp
+  const now = new Date();
+  $('result-timestamp').textContent =
+    `报告生成于 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  // Store for share
+  window._result = result;
+}
+
+/* ============================================================
+   CARD TOGGLE
+   ============================================================ */
+function toggleCard(index) {
+  const card = $(`card-${index}`);
+  card.classList.toggle('open');
+}
+
+/* ============================================================
+   CYCLE CHARACTER
+   ============================================================ */
+function cycleCharacter() {
+  const chars = window._characters;
+  if (!chars) return;
+  window._charIndex = (window._charIndex + 1) % chars.length;
+  const c = chars[window._charIndex];
+
+  // Update character display
+  const display = $('char-display');
+  if (display) {
+    display.querySelector('.char-info-name').textContent = c[0];
+    display.querySelector('.char-info-source').textContent = c[1];
+    display.querySelector('.char-info-desc').textContent = c[2];
+
+    // Fade animation
+    display.style.opacity = '0';
+    display.style.transform = 'translateY(6px)';
+    display.style.transition = 'opacity 0.2s, transform 0.2s';
+    requestAnimationFrame(() => {
+      display.style.opacity = '1';
+      display.style.transform = 'translateY(0)';
+    });
+  }
+
+  // Update counter
+  const counter = $('char-counter');
+  if (counter) {
+    counter.textContent = `${window._charIndex + 1}/${chars.length}`;
+  }
+}
+
+/* ============================================================
+   SHARE
+   ============================================================ */
+function showShareCard() {
+  const r = window._result;
+  if (!r) return;
+  const p = r.personality;
+  const campColor = CAMP_CSS_VARS[p.campKey];
+
+  $('share-code').textContent = r.fullCode;
+  $('share-code').style.color = campColor;
+  $('share-nickname').textContent = `${p.nickname} · ${p.camp}`;
+
+  // Mini bars for share card
+  let barsHTML = '';
+  DIMENSIONS.forEach(dim => {
+    const s = r.scores[dim.id];
+    barsHTML += `
+      <div style="display:flex;align-items:center;margin-bottom:6px;font-size:0.7rem">
+        <span style="width:28px;text-align:right;color:#999">${dim.left}</span>
+        <div style="flex:1;height:4px;background:#f0ede7;border-radius:2px;margin:0 6px">
+          <div style="width:${s.pct}%;height:100%;background:${campColor};border-radius:2px"></div>
+        </div>
+        <span style="width:28px;text-align:left;color:#999">${dim.right}</span>
+      </div>`;
+  });
+  $('share-bars').innerHTML = barsHTML;
+
+  $('share-overlay').classList.add('active');
+}
+
+function hideShareCard(e) {
+  if (e && e.target !== $('share-overlay')) return;
+  $('share-overlay').classList.remove('active');
+}
+
+/* ============================================================
+   RETAKE TEST
+   ============================================================ */
+function retakeTest() {
+  questionOrder = [];
+  answers = [];
+  currentIdx = 0;
+  startQuiz();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  showView('intro');
+});
+
+// Keyboard navigation for desktop testing
+document.addEventListener('keydown', (e) => {
+  if (!$('view-quiz').classList.contains('active')) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevQuestion(); }
+  if (e.key >= '1' && e.key <= '5') {
+    e.preventDefault();
+    selectAnswer(parseInt(e.key));
+  }
+});
+</script>
+
+</body>
+</html>
