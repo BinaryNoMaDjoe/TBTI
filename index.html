@@ -1754,9 +1754,25 @@ async function generateLongImage() {
   // Show loading
   overlay.classList.add('active');
 
+  // Force explicit background colors — html2canvas can't resolve CSS variables
+  const styleOverrides = [
+    { el: resultView, prop: 'backgroundColor', value: '#f7f4ef' },
+  ];
+  const cards = resultView.querySelectorAll('.card');
+  const dimSection = resultView.querySelector('.dimensions-section');
+  const campTag = resultView.querySelector('.result-camp');
+
+  // Override card & section backgrounds
+  cards.forEach(c => styleOverrides.push({ el: c, prop: 'backgroundColor', value: '#ffffff' }));
+  if (dimSection) styleOverrides.push({ el: dimSection, prop: 'backgroundColor', value: '#ffffff' });
+  if (campTag) styleOverrides.push({ el: campTag, prop: 'backgroundColor', value: campTag.style.background || '#f7f4ef' });
+
+  // Apply overrides
+  const originals = styleOverrides.map(s => ({ el: s.el, prop: s.prop, value: s.el.style[s.prop] }));
+  styleOverrides.forEach(s => { s.el.style.setProperty(s.prop, s.value, 'important'); });
+
   try {
     // Temporarily expand all cards
-    const cards = resultView.querySelectorAll('.card');
     const wasOpen = [];
     cards.forEach(card => {
       wasOpen.push(card.classList.contains('open'));
@@ -1766,16 +1782,30 @@ async function generateLongImage() {
     // Mark capturing state
     resultView.classList.add('capturing');
 
-    // Wait for DOM to settle
-    await new Promise(r => setTimeout(r, 300));
+    // Wait for DOM + fonts to settle
+    await new Promise(r => setTimeout(r, 400));
 
-    // Capture
+    // Capture — clone approach for clean rendering
     const canvas = await html2canvas(resultView, {
       scale: 2,
       useCORS: true,
+      allowTaint: false,
       backgroundColor: '#f7f4ef',
       logging: false,
-      windowWidth: 420,
+      onclone: function(clonedDoc) {
+        // Ensure cloned document has explicit backgrounds too
+        const cv = clonedDoc.getElementById('view-result');
+        if (cv) {
+          cv.style.backgroundColor = '#f7f4ef';
+          cv.style.minHeight = 'auto';
+          cv.style.height = 'auto';
+        }
+        clonedDoc.querySelectorAll('.card').forEach(c => {
+          c.style.backgroundColor = '#ffffff';
+        });
+        const ds = clonedDoc.querySelector('.dimensions-section');
+        if (ds) ds.style.backgroundColor = '#ffffff';
+      }
     });
 
     // Restore card states
@@ -1783,6 +1813,12 @@ async function generateLongImage() {
       if (!wasOpen[i]) card.classList.remove('open');
     });
     resultView.classList.remove('capturing');
+
+    // Restore style overrides
+    originals.forEach(o => {
+      if (o.value) o.el.style.setProperty(o.prop, o.value);
+      else o.el.style.removeProperty(o.prop);
+    });
 
     // Download
     const filename = `${r.fullCode}_${r.personality.nickname}_TBTI.png`;
@@ -1794,9 +1830,12 @@ async function generateLongImage() {
   } catch (err) {
     console.error('长图生成失败:', err);
     // Restore on error
-    const cards = resultView.querySelectorAll('.card');
     cards.forEach(c => c.classList.remove('open'));
     resultView.classList.remove('capturing');
+    originals.forEach(o => {
+      if (o.value) o.el.style.setProperty(o.prop, o.value);
+      else o.el.style.removeProperty(o.prop);
+    });
     alert('长图生成失败，请重试。');
   } finally {
     overlay.classList.remove('active');
