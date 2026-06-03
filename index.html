@@ -614,10 +614,6 @@ body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Temporarily expand all cards during capture */
-#view-result.capturing .card { break-inside: avoid; }
-#view-result.capturing .card-body { display: block; animation: none; }
-
 .result-footer-links {
   display: flex; gap: 20px;
   font-size: 0.82rem;
@@ -731,7 +727,7 @@ body {
   }
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.6.0/dist/dom-to-image-more.min.js"></script>
 </head>
 <body>
 
@@ -1743,8 +1739,8 @@ async function generateLongImage() {
   const r = window._result;
   if (!r) return;
 
-  if (typeof html2canvas === 'undefined') {
-    alert('图片生成组件加载失败，请检查网络连接后刷新页面重试。');
+  if (typeof domtoimage === 'undefined') {
+    alert('图片组件加载失败，请刷新页面重试。');
     return;
   }
 
@@ -1752,75 +1748,48 @@ async function generateLongImage() {
   const resultView = $('view-result');
   overlay.classList.add('active');
 
-  // 1. Expand all cards
+  // 1. Expand all cards for full capture
   const cards = resultView.querySelectorAll('.card');
   const wasOpen = [];
   cards.forEach(card => {
     wasOpen.push(card.classList.contains('open'));
     card.classList.add('open');
   });
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 400));
 
   try {
-    // 2. Build a clean clone with ALL inline styles from computed values
-    const clone = resultView.cloneNode(true);
-    clone.style.cssText = 'position:fixed;left:0;top:0;z-index:99999;width:420px;min-height:auto;height:auto;display:block;background-color:#f7f4ef;';
-
-    // 3. Walk both trees: copy key computed styles from real → clone
-    const origAll = resultView.querySelectorAll('*');
-    const cloneAll = clone.querySelectorAll('*');
-    const n = Math.min(origAll.length, cloneAll.length);
-    for (let i = 0; i < n; i++) {
-      const cs = window.getComputedStyle(origAll[i]);
-      cloneAll[i].style.display = cs.display;
-      const bg = cs.backgroundColor;
-      if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-        cloneAll[i].style.backgroundColor = bg;
-      }
-      const c = cs.color;
-      if (c && c !== 'rgba(0, 0, 0, 0)') {
-        cloneAll[i].style.color = c;
-      }
-      // Keep card bodies open
-      if (origAll[i].classList.contains('card-body')) {
-        cloneAll[i].style.display = 'block';
-        cloneAll[i].style.animation = 'none';
-      }
-    }
-
-    // 4. Append clone, capture, remove
-    document.body.appendChild(clone);
-    await new Promise(r => setTimeout(r, 300));
-
-    const canvas = await html2canvas(clone, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#f7f4ef',
-      logging: false,
+    // 2. dom-to-image-more uses SVG foreignObject — preserves CSS variables + fonts natively
+    const blob = await domtoimage.toBlob(resultView, {
+      bgcolor: '#f7f4ef',
+      width: resultView.scrollWidth,
+      height: resultView.scrollHeight,
+      style: {
+        backgroundColor: '#f7f4ef',
+      },
+      imagePlaceholder: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
     });
 
-    document.body.removeChild(clone);
-
-    // 5. Restore card states
-    cards.forEach((card, i) => {
-      if (!wasOpen[i]) card.classList.remove('open');
-    });
-
-    // 6. Download
-    const filename = `${r.fullCode}_${r.personality.nickname}_TBTI.png`;
+    // 3. Download
+    const filename = r.fullCode + '_' + r.personality.nickname + '_TBTI.png';
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.download = filename;
-    link.href = canvas.toDataURL('image/png');
+    link.href = url;
     link.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
 
   } catch (err) {
     console.error('长图生成失败:', err);
-    cards.forEach(c => c.classList.remove('open'));
     alert('长图生成失败，请重试。');
   } finally {
+    // 4. Restore card states
+    cards.forEach(function(card, i) {
+      if (!wasOpen[i]) card.classList.remove('open');
+    });
     overlay.classList.remove('active');
   }
 }
+
 /* ============================================================
    RETAKE TEST
    ============================================================ */
