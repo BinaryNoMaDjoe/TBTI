@@ -726,6 +726,7 @@ body {
     min-height: calc(100vh - 40px);
   }
 }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.6.0/dist/dom-to-image-more.min.js"></script>
 </head>
@@ -827,6 +828,92 @@ body {
 </div><!-- /app -->
 
 <script>
+/* ============================================================
+   TRACKER MODULE — localStorage + Supabase cloud sync
+   ============================================================ */
+const TRACKER = (function() {
+  const EVENTS_KEY = 'tbti_events';
+  const CONFIG_KEY = 'tbti_config';
+  const MAX_EVENTS = 5000;
+
+  // ======== Supabase 配置（部署前填写）========
+  const SB_URL = 'https://jvwkurfoqbalitlfdkjy.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2d2t1cmZvcWJhbGl0bGZka2p5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NzQ2MDYsImV4cCI6MjA5NjA1MDYwNn0.r0kTolt2QSnpnNmuv5YIlohPnfrnS303VIxPMFBvfhk';
+  const SB_ENDPOINT = SB_URL + '/rest/v1/tbti_events';
+  const SB_ENABLED = SB_URL !== 'YOUR_SUPABASE_URL';
+  // ===========================================
+
+  let _sessionId = null;
+
+  function _initSession() {
+    if (_sessionId) return _sessionId;
+    _sessionId = 'tbti_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+    try {
+      if (!localStorage.getItem(CONFIG_KEY)) {
+        localStorage.setItem(CONFIG_KEY, JSON.stringify({ version: 1, firstVisit: Date.now() }));
+      }
+    } catch(e) {}
+    return _sessionId;
+  }
+
+  function _read() {
+    try {
+      var raw = localStorage.getItem(EVENTS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+
+  function _write(events) {
+    try {
+      localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
+    } catch(e) {
+      if (events.length > 500) {
+        try { localStorage.setItem(EVENTS_KEY, JSON.stringify(events.slice(-500))); } catch(e2) {}
+      }
+    }
+  }
+
+  function _sendToCloud(eventName, data) {
+    if (!SB_ENABLED) return;
+    fetch(SB_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        session: _sessionId,
+        event: eventName,
+        data: data || {},
+        ts: Date.now()
+      }),
+      keepalive: true
+    }).catch(function() { /* 静默失败 */ });
+  }
+
+  function track(eventName, data) {
+    _initSession();
+    var events = _read();
+    events.push({
+      ts: Date.now(),
+      session: _sessionId,
+      event: eventName,
+      data: data || {}
+    });
+    if (events.length > MAX_EVENTS) {
+      events = events.slice(-MAX_EVENTS);
+    }
+    _write(events);
+    _sendToCloud(eventName, data);
+  }
+
+  function getSessionId() { return _sessionId; }
+
+  return { track: track, getSessionId: getSessionId, _initSession: _initSession };
+})();
+
 /* ============================================================
    DATA: 50 QUESTIONS
    id: original ID from spec
@@ -1400,6 +1487,7 @@ function startQuiz() {
   currentIdx = 0;
   showView('quiz');
   renderQuestion();
+  TRACKER.track('quiz_start');
 }
 
 /* ============================================================
@@ -1449,6 +1537,17 @@ function selectAnswer(value) {
   answers[currentIdx] = value;
   saveState('quiz');
 
+  // Track answer
+  var qIndex = questionOrder[currentIdx];
+  var q = QUESTIONS[qIndex];
+  TRACKER.track('answer', {
+    questionId: q.id,
+    questionIndex: currentIdx,
+    value: value,
+    tendency: q.tendency,
+    dimension: q.dim
+  });
+
   // Update option buttons
   const buttons = $('options-list').querySelectorAll('.option-btn');
   buttons.forEach((btn, i) => {
@@ -1463,7 +1562,24 @@ function selectAnswer(value) {
       renderQuestion();
       window.scrollTo(0, 0);
     } else {
-      // All questions answered → results
+      // All questions answered → record completion, then show results
+      (function() {
+        var scores = calculateScores();
+        var result = determineType(scores);
+        var p = result.personality;
+        var sc = {};
+        for (var dimId = 1; dimId <= 5; dimId++) {
+          var s = scores[dimId];
+          sc[dimId] = { pct: s.pct, letter: s.letter };
+        }
+        TRACKER.track('complete', {
+          typeCode: result.fullCode,
+          nickname: p.nickname,
+          camp: p.camp,
+          campKey: p.campKey,
+          scores: sc
+        });
+      })();
       showResults();
     }
   }, 350);
@@ -1474,7 +1590,9 @@ function selectAnswer(value) {
    ============================================================ */
 function prevQuestion() {
   if (currentIdx > 0) {
+    var fromIdx = currentIdx;
     currentIdx--;
+    TRACKER.track('prev', { fromIndex: fromIdx, toIndex: currentIdx });
     renderQuestion();
     window.scrollTo(0, 0);
   }
@@ -1663,6 +1781,7 @@ function showResults() {
 function toggleCard(index) {
   const card = $(`card-${index}`);
   card.classList.toggle('open');
+  TRACKER.track('card_toggle', { cardIndex: index, open: card.classList.contains('open') });
 }
 
 /* ============================================================
@@ -1672,6 +1791,7 @@ function cycleCharacter() {
   const chars = window._characters;
   if (!chars) return;
   window._charIndex = (window._charIndex + 1) % chars.length;
+  TRACKER.track('char_cycle', { charIndex: window._charIndex });
   const c = chars[window._charIndex];
 
   // Update character display
@@ -1727,6 +1847,7 @@ function showShareCard() {
   $('share-bars').innerHTML = barsHTML;
 
   $('share-overlay').classList.add('active');
+  TRACKER.track('share');
 }
 
 function hideShareCard(e) {
@@ -1749,6 +1870,7 @@ async function generateLongImage() {
   const overlay = $('loading-overlay');
   const resultView = $('view-result');
   overlay.classList.add('active');
+  TRACKER.track('image');
 
   // 1. Expand all cards for full capture
   const cards = resultView.querySelectorAll('.card');
@@ -1825,12 +1947,14 @@ function restoreState() {
       window._result = result;
       showView('result');
       showResults();
+      TRACKER.track('session_start', { source: 'result' });
       return true;
     }
 
     if (state.view === 'quiz' && currentIdx < 50) {
       showView('quiz');
       renderQuestion();
+      TRACKER.track('session_start', { source: 'quiz' });
       return true;
     }
   } catch(e) {}
@@ -1842,6 +1966,7 @@ function restoreState() {
    ============================================================ */
 function retakeTest() {
   clearState();
+  TRACKER.track('retake');
   questionOrder = [];
   answers = [];
   currentIdx = 0;
@@ -1853,8 +1978,10 @@ function retakeTest() {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
+  TRACKER._initSession();
   if (!restoreState()) {
     showView('intro');
+    TRACKER.track('session_start', { source: 'intro' });
   }
 });
 
@@ -1867,6 +1994,7 @@ document.addEventListener('keydown', (e) => {
     selectAnswer(parseInt(e.key));
   }
 });
+
 </script>
 
 </body>
