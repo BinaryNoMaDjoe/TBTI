@@ -751,7 +751,7 @@ body {
 }
 
 /* ============================================================
-   FEATURED SHARE CARD (off-screen, high-res 750px card)
+   FEATURED SHARE CARD — 3:4 vertical, 750×1000, centered layout
    ============================================================ */
 #share-card-target {
   position: fixed;
@@ -762,154 +762,169 @@ body {
   z-index: -1;
   font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
   color: #1a1a1a;
-  line-height: 1.6;
+  line-height: 1.5;
   letter-spacing: 0.02em;
-  box-sizing: border-box;
 }
 #share-card-target *,
 #share-card-target *::before,
 #share-card-target *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  box-sizing: border-box; margin: 0; padding: 0;
 }
 
 .fsc-inner {
-  padding: 48px 52px 36px;
+  padding: 60px 50px 56px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.fsc-code {
-  font-size: 64px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.1;
+/* ---- Avatar ---- */
+.fsc-avatar {
+  width: 190px;
+  height: 190px;
+  margin-bottom: 36px;
+  flex-shrink: 0;
+}
+.fsc-avatar svg {
+  width: 100%; height: 100%; display: block;
 }
 
+/* ---- Type code ---- */
+.fsc-code {
+  font-size: 68px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+/* ---- Nickname ---- */
 .fsc-nickname {
-  font-size: 36px;
+  font-size: 40px;
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: 10px;
   letter-spacing: 0.06em;
 }
 
+/* ---- Camp badge ---- */
 .fsc-camp {
   display: inline-block;
-  margin-top: 10px;
-  padding: 6px 28px;
+  margin-top: 14px;
+  padding: 8px 32px;
   border-radius: 50px;
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: 0.08em;
   font-weight: 500;
 }
 
-.fsc-avatar {
-  margin: 32px 0 28px;
-  width: 180px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.fsc-avatar svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
+/* ---- Dimension bars (compact, centered) ---- */
 .fsc-dims {
   width: 100%;
-  max-width: 540px;
-  margin-bottom: 22px;
+  max-width: 520px;
+  margin-top: 44px;
 }
 .fsc-dim-row {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  justify-content: center;
+  margin-bottom: 14px;
   font-size: 15px;
 }
-.fsc-dim-left {
-  width: 64px;
+.fsc-dim-label-l {
+  width: 70px;
   text-align: right;
   color: #8c8880;
+  font-size: 14px;
   flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
-.fsc-dim-right {
-  width: 64px;
+.fsc-dim-label-r {
+  width: 70px;
   text-align: left;
   color: #8c8880;
+  font-size: 14px;
   flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .fsc-dim-track {
-  flex: 1;
-  height: 8px;
+  width: 250px;
+  height: 10px;
   background: #f0ede7;
-  border-radius: 4px;
-  margin: 0 12px;
+  border-radius: 5px;
+  margin: 0 10px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 .fsc-dim-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 .fsc-dim-pct {
-  width: 44px;
+  width: 38px;
   text-align: center;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   flex-shrink: 0;
 }
 
+/* ---- Quote box (fixed height, vertically centered) ---- */
+.fsc-quote-box {
+  margin-top: 44px;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 520px;
+  width: 100%;
+}
 .fsc-quote {
-  font-size: 20px;
+  font-size: 22px;
   font-style: italic;
   color: #5c5850;
   text-align: center;
-  max-width: 540px;
-  line-height: 1.7;
-  margin-bottom: 28px;
-  letter-spacing: 0.03em;
-  padding: 0 8px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
 }
 .fsc-quote::before { content: '\201C'; }
 .fsc-quote::after  { content: '\201D'; }
 
+/* ---- Bottom: QR + brand (stacked, centered) ---- */
 .fsc-bottom {
-  width: 100%;
-  max-width: 540px;
+  margin-top: 44px;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  border-top: 1px solid #e8e4dc;
-  padding-top: 24px;
+  flex-direction: column;
+  align-items: center;
 }
-
+.fsc-divider {
+  width: 120px;
+  height: 1px;
+  background: #e8e4dc;
+  margin-bottom: 28px;
+}
 .fsc-qr-wrap {
   text-align: center;
 }
 .fsc-qr {
-  width: 110px;
-  height: 110px;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
 }
 .fsc-qr img {
-  width: 100%;
-  height: 100%;
-  display: block;
+  width: 100%; height: 100%; display: block;
 }
 .fsc-qr-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #b8b4ac;
-  margin-top: 6px;
-  letter-spacing: 0.05em;
+  margin-top: 8px;
+  letter-spacing: 0.06em;
 }
-
 .fsc-brand {
+  margin-top: 12px;
   font-size: 14px;
   color: #b8b4ac;
   letter-spacing: 0.04em;
-  text-align: right;
+  text-align: center;
   line-height: 1.8;
 }
 
@@ -2276,22 +2291,22 @@ async function generateLongImage() {
       110, '#1a1a1a', '#ffffff'
     );
 
-    // Build dimension mini-bars
+    // Build dimension mini-bars (compact, centered)
     var dimsHTML = '';
     DIMENSIONS.forEach(function(dim) {
       var s = r.scores[dim.id];
       dimsHTML +=
         '<div class="fsc-dim-row">' +
-          '<span class="fsc-dim-left">' + dim.leftLabel + ' ' + dim.left + '</span>' +
+          '<span class="fsc-dim-label-l">' + dim.leftLabel + ' ' + dim.left + '</span>' +
           '<div class="fsc-dim-track">' +
             '<div class="fsc-dim-fill" style="width:' + s.pct + '%; background:' + campColor + '"></div>' +
           '</div>' +
           '<span class="fsc-dim-pct">' + s.pct + '%</span>' +
-          '<span class="fsc-dim-right">' + dim.right + ' ' + dim.rightLabel + '</span>' +
+          '<span class="fsc-dim-label-r">' + dim.right + ' ' + dim.rightLabel + '</span>' +
         '</div>';
     });
 
-    // QR code section
+    // QR code section (centered)
     var qrHTML = '';
     if (qrDataURL) {
       qrHTML =
@@ -2301,16 +2316,17 @@ async function generateLongImage() {
         '</div>';
     }
 
-    // Assemble the full card
+    // Assemble the full card — 3:4 vertical, everything centered
     target.innerHTML =
       '<div class="fsc-inner">' +
+        '<div class="fsc-avatar">' + avatarSVG + '</div>' +
         '<div class="fsc-code" style="color:' + campColor + '">' + r.fullCode + '</div>' +
         '<div class="fsc-nickname">' + p.nickname + '</div>' +
         '<div class="fsc-camp" style="background:' + campColor + '18; color:' + campColor + '">' + p.camp + '</div>' +
-        '<div class="fsc-avatar">' + avatarSVG + '</div>' +
         '<div class="fsc-dims">' + dimsHTML + '</div>' +
-        '<div class="fsc-quote">' + tagline + '</div>' +
+        '<div class="fsc-quote-box"><div class="fsc-quote">' + tagline + '</div></div>' +
         '<div class="fsc-bottom">' +
+          '<div class="fsc-divider"></div>' +
           qrHTML +
           '<div class="fsc-brand">TravelBookTypeIndicator<br>@Binarynomadjoe&amp;@Surkea</div>' +
         '</div>' +
@@ -2319,11 +2335,9 @@ async function generateLongImage() {
     // Wait for layout + font painting + QR img load
     await new Promise(function(resolve) { setTimeout(resolve, 600); });
 
-    // Capture with dom-to-image-more at high resolution
+    // Capture with dom-to-image-more — scale:2 doubles output to ~1500px PNG
     var blob = await domtoimage.toBlob(target, {
       bgcolor: '#ffffff',
-      width:  target.scrollWidth,
-      height: target.scrollHeight,
       style: { backgroundColor: '#ffffff' },
       quality: 1.0,
       scale: 2
