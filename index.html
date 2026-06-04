@@ -7,6 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- OG tags for WeChat / social sharing -->
+<meta name="description" content="5个维度，16种旅行人格。了解你的旅行偏好，找到最适合你的旅行方式。">
+<meta property="og:title" content="TravelBook · 旅行人格测试">
+<meta property="og:description" content="50道题解锁你的专属旅行人格，16种旅行者类型等你发现。">
+<meta property="og:image" content="https://binarynomadjoe.github.io/TBTI/og-image.png">
+<meta property="og:url" content="https://binarynomadjoe.github.io/TBTI/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TravelBook TBTI">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 /* ============================================================
    RESET & BASE
@@ -336,6 +345,20 @@ body {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   font-weight: 500;
+}
+
+.result-avatar {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.result-avatar svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* ============================================================
@@ -727,8 +750,172 @@ body {
   }
 }
 
+/* ============================================================
+   FEATURED SHARE CARD (off-screen, high-res 750px card)
+   ============================================================ */
+#share-card-target {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 750px;
+  background: #ffffff;
+  z-index: -1;
+  font-family: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  color: #1a1a1a;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  box-sizing: border-box;
+}
+#share-card-target *,
+#share-card-target *::before,
+#share-card-target *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.fsc-inner {
+  padding: 48px 52px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fsc-code {
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.fsc-nickname {
+  font-size: 36px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+}
+
+.fsc-camp {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 28px;
+  border-radius: 50px;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.fsc-avatar {
+  margin: 32px 0 28px;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fsc-avatar svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.fsc-dims {
+  width: 100%;
+  max-width: 540px;
+  margin-bottom: 22px;
+}
+.fsc-dim-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+.fsc-dim-left {
+  width: 64px;
+  text-align: right;
+  color: #8c8880;
+  flex-shrink: 0;
+}
+.fsc-dim-right {
+  width: 64px;
+  text-align: left;
+  color: #8c8880;
+  flex-shrink: 0;
+}
+.fsc-dim-track {
+  flex: 1;
+  height: 8px;
+  background: #f0ede7;
+  border-radius: 4px;
+  margin: 0 12px;
+  overflow: hidden;
+}
+.fsc-dim-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+.fsc-dim-pct {
+  width: 44px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.fsc-quote {
+  font-size: 20px;
+  font-style: italic;
+  color: #5c5850;
+  text-align: center;
+  max-width: 540px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  letter-spacing: 0.03em;
+  padding: 0 8px;
+}
+.fsc-quote::before { content: '\201C'; }
+.fsc-quote::after  { content: '\201D'; }
+
+.fsc-bottom {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid #e8e4dc;
+  padding-top: 24px;
+}
+
+.fsc-qr-wrap {
+  text-align: center;
+}
+.fsc-qr {
+  width: 110px;
+  height: 110px;
+}
+.fsc-qr img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.fsc-qr-label {
+  font-size: 11px;
+  color: #b8b4ac;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+}
+
+.fsc-brand {
+  font-size: 14px;
+  color: #b8b4ac;
+  letter-spacing: 0.04em;
+  text-align: right;
+  line-height: 1.8;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.6.0/dist/dom-to-image-more.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -795,7 +982,7 @@ body {
     <div class="cards-section" id="cards-section"></div>
     <div class="result-footer">
       <button class="btn btn-primary" onclick="showShareCard()">分享我的结果</button>
-      <button class="btn btn-outline" onclick="generateLongImage()">📸 保存长图</button>
+      <button class="btn btn-outline" onclick="generateLongImage()">🃏 生成分享卡片</button>
       <div class="result-footer-links">
         <a onclick="retakeTest()">重新测试</a>
       </div>
@@ -822,10 +1009,13 @@ body {
   <!-- Loading overlay for long-image generation -->
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner"></div>
-    <span>正在生成长图…</span>
+    <span>正在生成卡片…</span>
   </div>
 
 </div><!-- /app -->
+
+<!-- Off-screen target for featured share card generation -->
+<div id="share-card-target"></div>
 
 <script>
 /* ============================================================
@@ -1430,6 +1620,162 @@ const CAMP_CSS_VARS = {
 };
 
 /* ============================================================
+   SVG AVATAR GENERATOR — 16 geometric character silhouettes
+   ============================================================ */
+function getAvatarSVG(code, color) {
+  var svgs = {
+    /* ---- 远征 (Expedition) ---- */
+    PSOG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="50,6 88,26 88,68 50,94 12,68 12,26" fill="' + color + '" opacity="0.9"/>' +
+      '<polyline points="50,22 78,38 50,54 22,38 50,22" fill="none" stroke="#fff" stroke-width="2.5" opacity="0.45"/>' +
+      '<line x1="34" y1="56" x2="66" y2="56" stroke="#fff" stroke-width="3" opacity="0.35"/>' +
+      '<polygon points="50,64 54,72 46,72" fill="#fff" opacity="0.5"/>' +
+      '</svg>',
+    PSON: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="50" cy="50" r="38" fill="none" stroke="' + color + '" stroke-width="3" opacity="0.8"/>' +
+      '<circle cx="50" cy="50" r="24" fill="none" stroke="' + color + '" stroke-width="2" opacity="0.5"/>' +
+      '<line x1="12" y1="50" x2="88" y2="50" stroke="' + color + '" stroke-width="1.5" opacity="0.4"/>' +
+      '<line x1="50" y1="12" x2="50" y2="88" stroke="' + color + '" stroke-width="1.5" opacity="0.4"/>' +
+      '<circle cx="50" cy="50" r="6" fill="' + color + '" opacity="0.9"/>' +
+      '</svg>',
+    PSEG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="50,18 42,55 20,55 12,88 42,88 50,60 58,88 88,88 80,55 58,55" fill="' + color + '" opacity="0.85"/>' +
+      '<circle cx="50" cy="14" r="9" fill="' + color + '" opacity="0.9"/>' +
+      '<line x1="78" y1="12" x2="78" y2="86" stroke="' + color + '" stroke-width="3" opacity="0.6"/>' +
+      '<polygon points="78,2 74,12 82,12" fill="' + color + '" opacity="0.8"/>' +
+      '</svg>',
+    PSEN: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="40,24 32,58 22,62 30,62 38,52 48,52 55,62 65,62 55,52 48,24" fill="' + color + '" opacity="0.85"/>' +
+      '<circle cx="41" cy="17" r="9" fill="' + color + '" opacity="0.9"/>' +
+      '<line x1="26" y1="18" x2="16" y2="84" stroke="' + color + '" stroke-width="3" stroke-linecap="round" opacity="0.6"/>' +
+      '<path d="M6,88 Q50,72 94,88" fill="none" stroke="' + color + '" stroke-width="2" opacity="0.35"/>' +
+      '</svg>',
+
+    /* ---- 漫步 (Stroll) ---- */
+    PCOG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="14" y="16" width="72" height="60" rx="4" fill="none" stroke="' + color + '" stroke-width="3.5" opacity="0.8"/>' +
+      '<line x1="14" y1="46" x2="86" y2="46" stroke="' + color + '" stroke-width="1" opacity="0.3"/>' +
+      '<line x1="50" y1="16" x2="50" y2="76" stroke="' + color + '" stroke-width="1" opacity="0.3"/>' +
+      '<circle cx="50" cy="46" r="16" fill="none" stroke="' + color + '" stroke-width="2.5" opacity="0.55"/>' +
+      '<circle cx="50" cy="46" r="5" fill="' + color + '" opacity="0.65"/>' +
+      '</svg>',
+    PCON: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="50,12 92,88 8,88" fill="' + color + '" opacity="0.8"/>' +
+      '<circle cx="72" cy="28" r="12" fill="' + color + '" opacity="0.35"/>' +
+      '<polygon points="50,12 62,44 38,44" fill="#fff" opacity="0.25"/>' +
+      '<polygon points="14,88 36,50 58,88" fill="' + color + '" opacity="0.5"/>' +
+      '</svg>',
+    PCEG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M28,88 L28,30 Q28,8 50,8 Q72,8 72,26" fill="none" stroke="' + color + '" stroke-width="4" stroke-linecap="round" opacity="0.85"/>' +
+      '<ellipse cx="68" cy="74" rx="16" ry="12" fill="' + color + '" opacity="0.45"/>' +
+      '<circle cx="78" cy="66" r="5" fill="' + color + '" opacity="0.55"/>' +
+      '<line x1="6" y1="88" x2="94" y2="88" stroke="' + color + '" stroke-width="2" opacity="0.3"/>' +
+      '</svg>',
+    PCEN: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M6,50 Q28,28 50,50 Q72,72 94,50" fill="none" stroke="' + color + '" stroke-width="2" stroke-dasharray="6,4" opacity="0.5"/>' +
+      '<ellipse cx="20" cy="46" rx="6" ry="10" fill="' + color + '" opacity="0.4" transform="rotate(-15,20,46)"/>' +
+      '<ellipse cx="80" cy="46" rx="6" ry="10" fill="' + color + '" opacity="0.6" transform="rotate(10,80,46)"/>' +
+      '<circle cx="50" cy="50" r="5" fill="' + color + '" opacity="0.75"/>' +
+      '<polygon points="50,16 46,50 54,50" fill="' + color + '" opacity="0.7"/>' +
+      '<polygon points="50,84 46,50 54,50" fill="' + color + '" opacity="0.3"/>' +
+      '</svg>',
+
+    /* ---- 野生 (Wild) ---- */
+    RSOG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="50" cy="62" r="24" fill="' + color + '" opacity="0.3"/>' +
+      '<polygon points="20,58 14,14 30,40" fill="' + color + '" opacity="0.8"/>' +
+      '<polygon points="32,52 28,8 44,36" fill="' + color + '" opacity="0.85"/>' +
+      '<polygon points="50,48 50,6 58,34" fill="' + color + '" opacity="0.9"/>' +
+      '<polygon points="68,52 72,8 56,36" fill="' + color + '" opacity="0.85"/>' +
+      '<polygon points="80,58 86,14 70,40" fill="' + color + '" opacity="0.8"/>' +
+      '<rect x="26" y="56" width="48" height="8" rx="3" fill="' + color + '" opacity="0.55"/>' +
+      '</svg>',
+    RSON: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="34,34 22,4 38,24" fill="' + color + '" opacity="0.85"/>' +
+      '<polygon points="66,34 78,4 62,24" fill="' + color + '" opacity="0.85"/>' +
+      '<polygon points="50,20 20,50 16,64 28,82 50,70 72,82 84,64 80,50" fill="' + color + '" opacity="0.7"/>' +
+      '<ellipse cx="38" cy="44" rx="3.5" ry="2" fill="#fff" opacity="0.55"/>' +
+      '<ellipse cx="62" cy="44" rx="3.5" ry="2" fill="#fff" opacity="0.55"/>' +
+      '<polygon points="50,54 44,62 56,62" fill="' + color + '" opacity="0.9"/>' +
+      '</svg>',
+    RSEG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<ellipse cx="50" cy="72" rx="44" ry="12" fill="' + color + '" opacity="0.65"/>' +
+      '<path d="M18,72 Q18,26 50,24 Q82,26 82,72" fill="' + color + '" opacity="0.85"/>' +
+      '<line x1="20" y1="60" x2="80" y2="60" stroke="#fff" stroke-width="2.5" opacity="0.35"/>' +
+      '<path d="M32,42 Q50,36 68,42" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.25"/>' +
+      '</svg>',
+    RSEN: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M6,90 Q30,52 62,32 Q78,22 90,14" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round" opacity="0.4"/>' +
+      '<path d="M10,86 Q30,56 58,38 Q74,28 86,18" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/>' +
+      '<circle cx="90" cy="14" r="10" fill="' + color + '" opacity="0.9"/>' +
+      '<circle cx="90" cy="14" r="5" fill="#fff" opacity="0.45"/>' +
+      '<circle cx="62" cy="32" r="2" fill="' + color + '" opacity="0.55"/>' +
+      '<circle cx="40" cy="50" r="1.5" fill="' + color + '" opacity="0.35"/>' +
+      '</svg>',
+
+    /* ---- 冒险 (Adventure) ---- */
+    RCOG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="6,74 94,74 78,56 22,56" fill="' + color + '" opacity="0.8"/>' +
+      '<line x1="50" y1="56" x2="50" y2="10" stroke="' + color + '" stroke-width="3" opacity="0.75"/>' +
+      '<polygon points="50,10 50,34 78,22" fill="' + color + '" opacity="0.6"/>' +
+      '<circle cx="64" cy="19" r="4" fill="#fff" opacity="0.45"/>' +
+      '<path d="M2,84 Q18,76 36,84 Q54,92 72,84 Q88,76 98,84" fill="none" stroke="' + color + '" stroke-width="2" opacity="0.3"/>' +
+      '</svg>',
+    RCON: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="50" cy="50" r="42" fill="none" stroke="' + color + '" stroke-width="3" opacity="0.7"/>' +
+      '<circle cx="50" cy="50" r="36" fill="none" stroke="' + color + '" stroke-width="1" opacity="0.3"/>' +
+      '<polygon points="50,6 56,50 44,50" fill="' + color + '" opacity="0.9"/>' +
+      '<polygon points="50,94 44,50 56,50" fill="' + color + '" opacity="0.5"/>' +
+      '<polygon points="6,50 50,44 50,56" fill="' + color + '" opacity="0.35"/>' +
+      '<polygon points="94,50 50,56 50,44" fill="' + color + '" opacity="0.35"/>' +
+      '<circle cx="50" cy="50" r="6" fill="#fff" opacity="0.5"/>' +
+      '<circle cx="50" cy="50" r="3" fill="' + color + '" opacity="0.8"/>' +
+      '<line x1="20" y1="20" x2="80" y2="80" stroke="' + color + '" stroke-width="1" opacity="0.2"/>' +
+      '<line x1="80" y1="20" x2="20" y2="80" stroke="' + color + '" stroke-width="1" opacity="0.2"/>' +
+      '</svg>',
+    RCEG: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M34,14 Q24,30 24,54 Q24,76 36,88" fill="none" stroke="' + color + '" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>' +
+      '<path d="M66,14 Q76,30 76,54 Q76,76 64,88" fill="none" stroke="' + color + '" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>' +
+      '<line x1="24" y1="36" x2="76" y2="36" stroke="' + color + '" stroke-width="3" opacity="0.6"/>' +
+      '<line x1="40" y1="30" x2="40" y2="84" stroke="' + color + '" stroke-width="0.8" opacity="0.3"/>' +
+      '<line x1="50" y1="26" x2="50" y2="86" stroke="' + color + '" stroke-width="0.8" opacity="0.3"/>' +
+      '<line x1="60" y1="30" x2="60" y2="84" stroke="' + color + '" stroke-width="0.8" opacity="0.3"/>' +
+      '<circle cx="50" cy="60" r="10" fill="none" stroke="' + color + '" stroke-width="1" opacity="0.22"/>' +
+      '</svg>',
+    RCEN: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<polygon points="50,6 94,90 6,90" fill="' + color + '" opacity="0.8"/>' +
+      '<polygon points="50,6 64,40 36,40" fill="#fff" opacity="0.25"/>' +
+      '<line x1="50" y1="26" x2="50" y2="2" stroke="' + color + '" stroke-width="2.5" opacity="0.7"/>' +
+      '<polygon points="50,2 50,20 76,11" fill="' + color + '" opacity="0.9"/>' +
+      '<line x1="0" y1="90" x2="100" y2="90" stroke="' + color + '" stroke-width="2" opacity="0.3"/>' +
+      '</svg>'
+  };
+  return svgs[code] || '';
+}
+
+/* ============================================================
+   PERSONALITY TAGLINES
+   ============================================================ */
+var TAGLINES = {
+  PSOG: '运筹帷幄，千军万马只等闲',
+  PSON: '锁定目标，独自奔赴山海',
+  PSEG: '带你看尽山河万里深',
+  PSEN: '赴一场和远方的旧约',
+  PCOG: '搭好舞台，好戏交给旅途',
+  PCON: '把自己安静地放进风景里',
+  PCEG: '找一片好草地，带大家去吃草',
+  PCEN: '每一步都是心的回响',
+  RSOG: '一声吆喝，全队人马到齐',
+  RSON: '一个人，一把剑，走遍天下',
+  RSEG: '没有地图，但有光的方向',
+  RSEN: '划过天际，在每座城留下痕迹',
+  RCOG: '走到哪里，哪里就是我的码头',
+  RCON: '没有航线，整片海都是路',
+  RCEG: '收集世界的歌，唱给下个路口',
+  RCEN: '万物为旅伴，我是自己的星辰'
+};
+
+/* ============================================================
    LIKERT OPTIONS
    ============================================================ */
 const LIKERT_OPTIONS = [
@@ -1658,7 +2004,9 @@ function showResults() {
   showView('result');
 
   // Header
+  const campHex = resolveCampHex(p.campKey);
   $('result-header').innerHTML = `
+    <div class="result-avatar">${getAvatarSVG(result.code4, campHex)}</div>
     <div class="result-type-code" style="color:${campColor}">${result.fullCode}</div>
     <div class="result-nickname">${p.nickname}</div>
     <div class="result-camp" style="background:${campColor}15; color:${campColor}">${p.camp}</div>
@@ -1856,10 +2204,54 @@ function hideShareCard(e) {
 }
 
 /* ============================================================
-   GENERATE LONG IMAGE
+   HELPERS
+   ============================================================ */
+
+/* Resolve camp CSS variable key to hex value (for SVG fill) */
+function resolveCampHex(campKey) {
+  var hexMap = {
+    expedition: '#b8956a',
+    stroll:     '#6b8b6f',
+    wild:       '#c47d7a',
+    adventure:  '#7b8cb8'
+  };
+  return hexMap[campKey] || '#8c8880';
+}
+
+/* Generate QR code as PNG data URL using qrcode-generator */
+function generateQRDataURL(url, size, fgColor, bgColor) {
+  if (typeof qrcode === 'undefined') return null;
+  try {
+    var qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    var moduleCount = qr.getModuleCount();
+    var canvas = document.createElement('canvas');
+    var scale = Math.floor(size / moduleCount) || 2;
+    canvas.width = moduleCount * scale;
+    canvas.height = moduleCount * scale;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = bgColor || '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = fgColor || '#1a1a1a';
+    for (var row = 0; row < moduleCount; row++) {
+      for (var col = 0; col < moduleCount; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillRect(col * scale, row * scale, scale, scale);
+        }
+      }
+    }
+    return canvas.toDataURL('image/png');
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ============================================================
+   GENERATE FEATURED SHARE CARD (high-res, compact)
    ============================================================ */
 async function generateLongImage() {
-  const r = window._result;
+  var r = window._result;
   if (!r) return;
 
   if (typeof domtoimage === 'undefined') {
@@ -1867,49 +2259,89 @@ async function generateLongImage() {
     return;
   }
 
-  const overlay = $('loading-overlay');
-  const resultView = $('view-result');
+  var overlay = $('loading-overlay');
+  var target = $('share-card-target');
   overlay.classList.add('active');
   TRACKER.track('image');
 
-  // 1. Expand all cards for full capture
-  const cards = resultView.querySelectorAll('.card');
-  const wasOpen = [];
-  cards.forEach(card => {
-    wasOpen.push(card.classList.contains('open'));
-    card.classList.add('open');
-  });
-  await new Promise(r => setTimeout(r, 400));
-
   try {
-    // 2. dom-to-image-more uses SVG foreignObject — preserves CSS variables + fonts natively
-    const blob = await domtoimage.toBlob(resultView, {
-      bgcolor: '#f7f4ef',
-      width: resultView.scrollWidth,
-      height: resultView.scrollHeight,
-      style: {
-        backgroundColor: '#f7f4ef',
-      },
-      imagePlaceholder: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+    var p = r.personality;
+    var campColor = CAMP_CSS_VARS[p.campKey];
+    var campHex = resolveCampHex(p.campKey);
+
+    var avatarSVG = getAvatarSVG(r.code4, campHex);
+    var tagline = TAGLINES[r.code4] || '';
+    var qrDataURL = generateQRDataURL(
+      'https://binarynomadjoe.github.io/TBTI/',
+      110, '#1a1a1a', '#ffffff'
+    );
+
+    // Build dimension mini-bars
+    var dimsHTML = '';
+    DIMENSIONS.forEach(function(dim) {
+      var s = r.scores[dim.id];
+      dimsHTML +=
+        '<div class="fsc-dim-row">' +
+          '<span class="fsc-dim-left">' + dim.leftLabel + ' ' + dim.left + '</span>' +
+          '<div class="fsc-dim-track">' +
+            '<div class="fsc-dim-fill" style="width:' + s.pct + '%; background:' + campColor + '"></div>' +
+          '</div>' +
+          '<span class="fsc-dim-pct">' + s.pct + '%</span>' +
+          '<span class="fsc-dim-right">' + dim.right + ' ' + dim.rightLabel + '</span>' +
+        '</div>';
     });
 
-    // 3. Download
-    const filename = r.fullCode + '_' + r.personality.nickname + '_TBTI.png';
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    // QR code section
+    var qrHTML = '';
+    if (qrDataURL) {
+      qrHTML =
+        '<div class="fsc-qr-wrap">' +
+          '<div class="fsc-qr"><img src="' + qrDataURL + '" alt="QR code" /></div>' +
+          '<div class="fsc-qr-label">扫码体验测试</div>' +
+        '</div>';
+    }
+
+    // Assemble the full card
+    target.innerHTML =
+      '<div class="fsc-inner">' +
+        '<div class="fsc-code" style="color:' + campColor + '">' + r.fullCode + '</div>' +
+        '<div class="fsc-nickname">' + p.nickname + '</div>' +
+        '<div class="fsc-camp" style="background:' + campColor + '18; color:' + campColor + '">' + p.camp + '</div>' +
+        '<div class="fsc-avatar">' + avatarSVG + '</div>' +
+        '<div class="fsc-dims">' + dimsHTML + '</div>' +
+        '<div class="fsc-quote">' + tagline + '</div>' +
+        '<div class="fsc-bottom">' +
+          qrHTML +
+          '<div class="fsc-brand">TravelBookTypeIndicator<br>@Binarynomadjoe&amp;@Surkea</div>' +
+        '</div>' +
+      '</div>';
+
+    // Wait for layout + font painting + QR img load
+    await new Promise(function(resolve) { setTimeout(resolve, 600); });
+
+    // Capture with dom-to-image-more at high resolution
+    var blob = await domtoimage.toBlob(target, {
+      bgcolor: '#ffffff',
+      width:  target.scrollWidth,
+      height: target.scrollHeight,
+      style: { backgroundColor: '#ffffff' },
+      quality: 1.0,
+      scale: 2
+    });
+
+    // Download
+    var filename = r.fullCode + '_' + p.nickname + '_TBTI.png';
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
     link.download = filename;
     link.href = url;
     link.click();
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 2000);
 
   } catch (err) {
-    console.error('长图生成失败:', err);
-    alert('长图生成失败，请重试。');
+    console.error('卡片生成失败:', err);
+    alert('卡片生成失败，请重试。');
   } finally {
-    // 4. Restore card states
-    cards.forEach(function(card, i) {
-      if (!wasOpen[i]) card.classList.remove('open');
-    });
     overlay.classList.remove('active');
   }
 }
