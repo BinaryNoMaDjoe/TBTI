@@ -335,6 +335,41 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* ---- Session pagination ---- */
+.dash-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+.dash-pagination button {
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dash-pagination button:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.dash-pagination button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.dash-page-info {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  min-width: 50px;
+  text-align: center;
+}
+
 /* ---- Session filter row inside table ---- */
 .dash-filter-row th {
   padding: 4px 8px 10px;
@@ -1253,13 +1288,19 @@ function renderHeatmap() {
   document.getElementById('dash-heatmap-body').innerHTML = '<div class="dash-heatmap-container">' + rows + '</div>';
 }
 
-function renderSessionRecords(filters) {
+var _sessionFilters = {};
+var _sessionPage = 1;
+var _pageSize = 15;
+
+function renderSessionRecords(filters, page) {
   var sessions = getSessions();
   if (sessions.length === 0) {
     document.getElementById('dash-sessions-body').innerHTML = '<div class="dash-empty">暂无数据</div>';
     return;
   }
   filters = filters || {};
+  page = page || 1;
+  _sessionFilters = filters;
 
   // Collect unique values per column
   var dates = {}, nicknames = {}, typeCodes = {}, camps = {};
@@ -1283,13 +1324,13 @@ function renderSessionRecords(filters) {
     return '<select id="' + id + '" onchange="onSessionFilter()">' + opts + '</select>';
   }
 
-  // Count + reset
+  // Toolbar: count + reset
   var h = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
     '<span style="font-size:0.75rem;color:var(--text-muted)" id="session-filter-count"></span>' +
     '<button onclick="resetSessionFilters()" style="font-family:inherit;font-size:0.7rem;padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:var(--card);color:var(--text-muted);cursor:pointer">清除筛选</button>' +
     '</div>';
 
-  // Table with filters embedded in thead
+  // Table with filters in thead
   h += '<table class="dash-session-table"><thead>' +
     '<tr><th>日期</th><th>角色</th><th>结果</th><th>阵营</th><th>事件</th></tr>' +
     '<tr class="dash-filter-row">' +
@@ -1301,13 +1342,23 @@ function renderSessionRecords(filters) {
     '</tr>' +
     '</thead><tbody>';
 
-  var filtered = 0;
+  // Filter first, then paginate
+  var matched = [];
   sessions.forEach(function(s) {
     if (filters.date && formatDate(s.first) !== filters.date) return;
     if (filters.nickname && s.nickname !== filters.nickname) return;
     if (filters.typeCode && s.typeCode !== filters.typeCode) return;
     if (filters.camp && s.campKey !== filters.camp) return;
-    filtered++;
+    matched.push(s);
+  });
+
+  var totalPages = Math.ceil(matched.length / _pageSize) || 1;
+  if (page > totalPages) page = totalPages;
+  _sessionPage = page;
+  var start = (page - 1) * _pageSize;
+  var pageItems = matched.slice(start, start + _pageSize);
+
+  pageItems.forEach(function(s) {
     var color = s.campKey ? campColorCSS(s.campKey) : 'var(--text)';
     h += '<tr>';
     h += '<td>' + formatDate(s.first) + ' <span style="font-size:0.65rem;color:var(--text-muted)">' + formatTime(s.first) + '</span></td>';
@@ -1318,8 +1369,37 @@ function renderSessionRecords(filters) {
     h += '</tr>';
   });
   h += '</tbody></table>';
+
+  // Pagination controls
+  h += buildPagination(page, totalPages, matched.length);
+
   document.getElementById('dash-sessions-body').innerHTML = h;
-  document.getElementById('session-filter-count').textContent = filtered + ' / ' + sessions.length + ' 条';
+  document.getElementById('session-filter-count').textContent = matched.length + ' / ' + sessions.length + ' 条（第 ' + page + '/' + totalPages + ' 页）';
+}
+
+function buildPagination(page, totalPages, total) {
+  if (totalPages <= 1) return '';
+  var h = '<div class="dash-pagination">';
+  h += '<button ' + (page <= 1 ? 'disabled' : '') + ' onclick="goSessionPage(' + (page - 1) + ')">‹ 上一页</button>';
+  h += '<span class="dash-page-info">' + page + ' / ' + totalPages + '</span>';
+  h += '<button ' + (page >= totalPages ? 'disabled' : '') + ' onclick="goSessionPage(' + (page + 1) + ')">下一页 ›</button>';
+  h += '</div>';
+  return h;
+}
+
+function goSessionPage(page) {
+  renderSessionRecords(_sessionFilters, page);
+  document.getElementById('dash-sessions-body').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function onSessionFilter() {
+  var filters = {
+    date:     document.getElementById('session-filter-date').value,
+    nickname: document.getElementById('session-filter-role').value,
+    typeCode: document.getElementById('session-filter-type').value,
+    camp:     document.getElementById('session-filter-camp').value
+  };
+  renderSessionRecords(filters, 1); // reset to page 1 on filter change
 }
 
 function onSessionFilter() {
