@@ -335,31 +335,21 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* ---- Session filter bar ---- */
-.dash-filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
+/* ---- Session filter row inside table ---- */
+.dash-filter-row th {
+  padding: 4px 8px 10px;
 }
-.dash-filter-bar select {
+.dash-filter-row select {
   font-family: inherit;
-  font-size: 0.72rem;
-  padding: 5px 8px;
+  font-size: 0.68rem;
+  padding: 4px 6px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   background: var(--card);
   color: var(--text);
   cursor: pointer;
-  min-width: 0;
-  max-width: 120px;
-}
-.dash-filter-count {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  margin-left: 4px;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ---- Session table ---- */
@@ -1285,10 +1275,6 @@ function renderSessionRecords(filters) {
   function buildSelect(id, values, selected, labelMap) {
     var opts = '<option value="">全部</option>';
     var keys = Object.keys(values).sort();
-    if (labelMap) {
-      // For camps, sort by camp name
-      keys = Object.keys(values);
-    }
     keys.forEach(function(k) {
       var label = labelMap ? values[k] : (k + (values[k] > 1 ? ' (' + values[k] + ')' : ''));
       var sel = (selected === k) ? ' selected' : '';
@@ -1297,17 +1283,23 @@ function renderSessionRecords(filters) {
     return '<select id="' + id + '" onchange="onSessionFilter()">' + opts + '</select>';
   }
 
-  // Filter bar — one dropdown per column
-  var h = '<div class="dash-filter-bar">' +
-    buildSelect('session-filter-date', dates, filters.date, null) +
-    buildSelect('session-filter-role', nicknames, filters.nickname, null) +
-    buildSelect('session-filter-type', typeCodes, filters.typeCode, null) +
-    buildSelect('session-filter-camp', camps, filters.camp, camps) +
-    '<span class="dash-filter-count" id="session-filter-count"></span>' +
+  // Count + reset
+  var h = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+    '<span style="font-size:0.75rem;color:var(--text-muted)" id="session-filter-count"></span>' +
+    '<button onclick="resetSessionFilters()" style="font-family:inherit;font-size:0.7rem;padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:var(--card);color:var(--text-muted);cursor:pointer">清除筛选</button>' +
     '</div>';
 
-  // Table
-  h += '<table class="dash-session-table"><thead><tr><th>日期</th><th>角色</th><th>结果</th><th>阵营</th><th>事件</th></tr></thead><tbody>';
+  // Table with filters embedded in thead
+  h += '<table class="dash-session-table"><thead>' +
+    '<tr><th>日期</th><th>角色</th><th>结果</th><th>阵营</th><th>事件</th></tr>' +
+    '<tr class="dash-filter-row">' +
+      '<th>' + buildSelect('session-filter-date', dates, filters.date, null) + '</th>' +
+      '<th>' + buildSelect('session-filter-role', nicknames, filters.nickname, null) + '</th>' +
+      '<th>' + buildSelect('session-filter-type', typeCodes, filters.typeCode, null) + '</th>' +
+      '<th>' + buildSelect('session-filter-camp', camps, filters.camp, camps) + '</th>' +
+      '<th></th>' +
+    '</tr>' +
+    '</thead><tbody>';
 
   var filtered = 0;
   sessions.forEach(function(s) {
@@ -1338,6 +1330,14 @@ function onSessionFilter() {
     camp:     document.getElementById('session-filter-camp').value
   };
   renderSessionRecords(filters);
+}
+
+function resetSessionFilters() {
+  document.getElementById('session-filter-date').value = '';
+  document.getElementById('session-filter-role').value = '';
+  document.getElementById('session-filter-type').value = '';
+  document.getElementById('session-filter-camp').value = '';
+  renderSessionRecords({});
 }
 
 function renderStorageInfo() {
