@@ -2278,7 +2278,7 @@ async function generateLongImage() {
   var overlay = $('loading-overlay');
   var target = $('share-card-target');
   overlay.classList.add('active');
-  TRACKER.track('image');
+  TRACKER.track('image', { typeCode: r.code4, nickname: p.nickname });
 
   try {
     var p = r.personality;
@@ -2288,7 +2288,7 @@ async function generateLongImage() {
     var avatarSVG = getAvatarSVG(r.code4, campHex);
     var tagline = TAGLINES[r.code4] || '';
     var qrDataURL = generateQRDataURL(
-      'https://binarynomadjoe.github.io/TBTI/',
+      'https://binarynomadjoe.github.io/TBTI/?ref=qr',
       110, '#1a1a1a', '#ffffff'
     );
 
@@ -2426,9 +2426,12 @@ function retakeTest() {
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   TRACKER._initSession();
+  // Detect QR scan or other referral source from URL params
+  var params = new URLSearchParams(window.location.search);
+  var ref = params.get('ref') || 'intro';
   if (!restoreState()) {
     showView('intro');
-    TRACKER.track('session_start', { source: 'intro' });
+    TRACKER.track('session_start', { source: ref });
   }
 });
 

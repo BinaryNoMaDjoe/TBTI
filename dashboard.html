@@ -271,6 +271,14 @@ body {
   min-width: 0;
 }
 
+.dash-trend-dots {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  min-height: 14px;
+  align-items: flex-end;
+  margin-bottom: 2px;
+}
 .dash-trend-bar {
   width: 100%;
   border-radius: 3px 3px 0 0;
@@ -424,6 +432,13 @@ body {
       <span class="card-title">阵营分布</span><span class="card-arrow">▼</span>
     </div>
     <div class="card-body"><div class="card-body-inner" id="dash-camp-body"></div></div>
+  </div>
+
+  <div class="card" id="dash-image-rank">
+    <div class="card-header" onclick="toggleDashCard('dash-image-rank')">
+      <span class="card-title">图片生成排行</span><span class="card-arrow">▼</span>
+    </div>
+    <div class="card-body"><div class="card-body-inner" id="dash-image-rank-body"></div></div>
   </div>
 
   <div class="card" id="dash-dimensions">
@@ -1042,6 +1057,7 @@ function renderOverview() {
   var avgMin = Math.floor(avgSec / 60); avgSec = avgSec % 60;
   var shareCount = events.filter(function(e) { return e.event === 'share'; }).length;
   var imageCount = events.filter(function(e) { return e.event === 'image'; }).length;
+  var qrScans = events.filter(function(e) { return e.event === 'session_start' && e.data.source === 'qr'; }).length;
   var shareRate = totalCompletions > 0 ? Math.round(shareCount / totalCompletions * 100) : 0;
   var imageRate = totalCompletions > 0 ? Math.round(imageCount / totalCompletions * 100) : 0;
 
@@ -1051,7 +1067,9 @@ function renderOverview() {
     { v: todayCompletions, l: '今日完成' },
     { v: avgMin + '分' + avgSec + '秒', l: '平均用时' },
     { v: shareRate + '%', l: '分享率' },
-    { v: imageRate + '%', l: '长图保存率' }
+    { v: imageRate + '%', l: '卡片保存率' },
+    { v: imageCount, l: '卡片生成次数' },
+    { v: qrScans, l: '扫码访问数' }
   ];
   var h = '';
   cards.forEach(function(c) { h += '<div class="dash-stat-card"><div class="dash-stat-value">' + c.v + '</div><div class="dash-stat-label">' + c.l + '</div></div>'; });
@@ -1134,20 +1152,57 @@ function renderDimensionAnalysis() {
   });
 }
 
+function renderImageRank() {
+  var events = getEvents();
+  var imageEvents = events.filter(function(e) { return e.event === 'image' && e.data.typeCode; });
+  var counts = {};
+  imageEvents.forEach(function(e) { var c = e.data.typeCode; counts[c] = (counts[c] || 0) + 1; });
+  var entries = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; });
+  if (entries.length === 0) {
+    document.getElementById('dash-image-rank-body').innerHTML = '<div class="dash-empty">暂无数据 — 生成卡片后将自动记录</div>';
+    return;
+  }
+  var total = imageEvents.length || 1;
+  var h = '';
+  entries.forEach(function(e) {
+    var code = e[0], count = e[1], pct = Math.round(count / total * 100);
+    var code4 = code.split('-')[0], pers = PERSONALITIES[code4];
+    var label = pers ? (pers.nickname + ' · ' + pers.camp) : code;
+    var color = pers ? campColorCSS(pers.campKey) : 'var(--text)';
+    h += '<div class="dash-bar-row"><span class="dash-bar-label" style="color:' + color + ';font-weight:500">' + label + '</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div><span class="dash-bar-count">' + count + '次</span></div>';
+  });
+  document.getElementById('dash-image-rank-body').innerHTML = h;
+  requestAnimationFrame(function() {
+    var fills = document.querySelectorAll('#dash-image-rank-body .dash-bar-fill');
+    fills.forEach(function(f) { var w = f.style.width; f.style.width = '0%'; requestAnimationFrame(function() { f.style.width = w; }); });
+  });
+}
+
 function renderDailyTrends() {
   var completions = getCompletions();
+  var events = getEvents();
   var days = [];
   for (var i = 13; i >= 0; i--) { days.push(formatDate(Date.now() - i * 86400000)); }
-  var counts = {};
-  days.forEach(function(d) { counts[d] = 0; });
-  completions.forEach(function(e) { var day = formatDate(e.ts); if (counts[day] !== undefined) counts[day]++; });
-  var maxCount = Math.max.apply(null, Object.values(counts)) || 1;
+  var compCounts = {};
+  var shareCounts = {};
+  var imageCounts = {};
+  days.forEach(function(d) { compCounts[d] = 0; shareCounts[d] = 0; imageCounts[d] = 0; });
+  completions.forEach(function(e) { var day = formatDate(e.ts); if (compCounts[day] !== undefined) compCounts[day]++; });
+  events.forEach(function(e) {
+    var day = formatDate(e.ts);
+    if (e.event === 'share' && shareCounts[day] !== undefined) shareCounts[day]++;
+    if (e.event === 'image' && imageCounts[day] !== undefined) imageCounts[day]++;
+  });
+  var maxComp = Math.max.apply(null, Object.values(compCounts)) || 1;
+  var maxSI = Math.max.apply(null, Object.values(shareCounts).concat(Object.values(imageCounts))) || 1;
   var h = '<div class="dash-trend-row">';
   days.forEach(function(day) {
-    var barH = Math.max(3, Math.round(counts[day] / maxCount * 72));
-    h += '<div class="dash-trend-col"><div class="dash-trend-bar" style="height:' + barH + 'px" title="' + day + ': ' + counts[day] + '次"></div><span class="dash-trend-label-bottom">' + day.slice(5) + '</span></div>';
+    var barH = Math.max(3, Math.round(compCounts[day] / maxComp * 64));
+    var shareDot = shareCounts[day] > 0 ? '<span style="font-size:9px;color:#c47d7a" title="' + day + ' 分享:' + shareCounts[day] + '次">◆</span>' : '';
+    var imageDot = imageCounts[day] > 0 ? '<span style="font-size:9px;color:#7b8cb8" title="' + day + ' 卡片:' + imageCounts[day] + '次">●</span>' : '';
+    h += '<div class="dash-trend-col"><div class="dash-trend-dots">' + shareDot + imageDot + '</div><div class="dash-trend-bar" style="height:' + barH + 'px" title="' + day + ' 完成:' + compCounts[day] + ' 分享:' + shareCounts[day] + ' 卡片:' + imageCounts[day] + '"></div><span class="dash-trend-label-bottom">' + day.slice(5) + '</span></div>';
   });
-  h += '</div>';
+  h += '</div><div style="display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:11px;color:var(--text-muted)"><span>◆ 分享</span><span>● 卡片</span></div>';
   document.getElementById('dash-trends-body').innerHTML = h;
 }
 
@@ -1208,11 +1263,11 @@ function renderAllDashboardCharts() {
   var events = getEvents();
   if (events.length === 0) {
     document.getElementById('dash-overview').innerHTML = '<div class="dash-empty" style="grid-column:1/-1">暂无数据 — 完成一次测试后将自动记录</div>';
-    ['dash-personality-body','dash-camp-body','dash-dimensions-body','dash-trends-body','dash-heatmap-body','dash-sessions-body'].forEach(function(id) { document.getElementById(id).innerHTML = '<div class="dash-empty">暂无数据</div>'; });
+    ['dash-personality-body','dash-camp-body','dash-image-rank-body','dash-dimensions-body','dash-trends-body','dash-heatmap-body','dash-sessions-body'].forEach(function(id) { document.getElementById(id).innerHTML = '<div class="dash-empty">暂无数据</div>'; });
     renderStorageInfo();
     return;
   }
-  renderOverview(); renderPersonalityDist(); renderCampDist(); renderDimensionAnalysis();
+  renderOverview(); renderPersonalityDist(); renderCampDist(); renderImageRank(); renderDimensionAnalysis();
   renderDailyTrends(); renderHeatmap(); renderSessionRecords(); renderStorageInfo();
 }
 
