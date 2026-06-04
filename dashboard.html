@@ -335,6 +335,28 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* ---- Session filter bar ---- */
+.dash-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.dash-filter-bar select {
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+}
+.dash-filter-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 /* ---- Session table ---- */
 .dash-session-table {
   width: 100%;
@@ -1016,13 +1038,13 @@ function getSessions() {
   var map = {};
   events.forEach(function(e) {
     if (!map[e.session]) {
-      map[e.session] = { sid: e.session, first: e.ts, last: e.ts, count: 0, completed: false, typeCode: null, camp: null };
+      map[e.session] = { sid: e.session, first: e.ts, last: e.ts, count: 0, completed: false, typeCode: null, camp: null, nickname: null, campKey: null };
     }
     var s = map[e.session];
     if (e.ts < s.first) s.first = e.ts;
     if (e.ts > s.last) s.last = e.ts;
     s.count++;
-    if (e.event === 'complete') { s.completed = true; s.typeCode = e.data.typeCode; s.camp = e.data.camp; }
+    if (e.event === 'complete') { s.completed = true; s.typeCode = e.data.typeCode; s.camp = e.data.camp; s.nickname = e.data.nickname; s.campKey = e.data.campKey; }
   });
   return Object.values(map).sort(function(a, b) { return b.first - a.first; });
 }
@@ -1236,19 +1258,49 @@ function renderHeatmap() {
   document.getElementById('dash-heatmap-body').innerHTML = '<div class="dash-heatmap-container">' + rows + '</div>';
 }
 
-function renderSessionRecords() {
+function renderSessionRecords(filterCamp) {
   var sessions = getSessions();
   if (sessions.length === 0) {
     document.getElementById('dash-sessions-body').innerHTML = '<div class="dash-empty">暂无数据</div>';
     return;
   }
-  var h = '<table class="dash-session-table"><thead><tr><th>日期</th><th>时间</th><th>结果</th><th>阵营</th><th>事件数</th><th>状态</th></tr></thead><tbody>';
+
+  // Build filter options from available camps
+  var campsInData = {};
+  sessions.forEach(function(s) { if (s.campKey) campsInData[s.campKey] = s.camp; });
+  var filterOpts = '<option value="">全部</option>';
+  for (var ck in campsInData) {
+    var sel = (filterCamp === ck) ? ' selected' : '';
+    filterOpts += '<option value="' + ck + '"' + sel + '>' + campsInData[ck] + '</option>';
+  }
+
+  // Filter bar
+  var h = '<div class="dash-filter-bar"><select id="session-filter-camp" onchange="onSessionFilter()">' + filterOpts + '</select><span class="dash-filter-count" id="session-filter-count"></span></div>';
+
+  // Table
+  h += '<table class="dash-session-table"><thead><tr><th>日期</th><th>角色</th><th>结果</th><th>阵营</th><th>事件</th></tr></thead><tbody>';
+
+  var filtered = 0;
   sessions.forEach(function(s) {
-    var badge = s.completed ? '<span style="color:#6b8b6f">✓ 完成</span>' : '<span style="color:var(--text-muted)">未完成</span>';
-    h += '<tr><td>' + formatDate(s.first) + '</td><td>' + formatTime(s.first) + '</td><td style="font-weight:500">' + (s.typeCode || '—') + '</td><td>' + (s.camp || '—') + '</td><td>' + s.count + '</td><td>' + badge + '</td></tr>';
+    if (filterCamp && s.campKey !== filterCamp) return;
+    filtered++;
+    var color = s.campKey ? campColorCSS(s.campKey) : 'var(--text)';
+    h += '<tr>';
+    h += '<td>' + formatDate(s.first) + ' <span style="font-size:0.65rem;color:var(--text-muted)">' + formatTime(s.first) + '</span></td>';
+    h += '<td style="font-weight:500;color:' + color + '">' + (s.nickname || '—') + '</td>';
+    h += '<td style="font-weight:500">' + (s.typeCode || '—') + '</td>';
+    h += '<td style="color:' + color + '">' + (s.camp || '—') + '</td>';
+    h += '<td>' + s.count + '</td>';
+    h += '</tr>';
   });
   h += '</tbody></table>';
   document.getElementById('dash-sessions-body').innerHTML = h;
+  document.getElementById('session-filter-count').textContent = filtered + ' / ' + sessions.length + ' 条';
+}
+
+function onSessionFilter() {
+  var sel = document.getElementById('session-filter-camp');
+  renderSessionRecords(sel.value);
 }
 
 function renderStorageInfo() {
