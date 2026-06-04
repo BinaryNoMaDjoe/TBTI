@@ -1345,6 +1345,7 @@ function renderSessionRecords(filters, page) {
   // Filter first, then paginate
   var matched = [];
   sessions.forEach(function(s) {
+    if (!s.completed) return;
     if (filters.date && formatDate(s.first) !== filters.date) return;
     if (filters.nickname && s.nickname !== filters.nickname) return;
     if (filters.typeCode && s.typeCode !== filters.typeCode) return;
