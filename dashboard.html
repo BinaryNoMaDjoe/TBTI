@@ -339,22 +339,27 @@ body {
 .dash-filter-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 .dash-filter-bar select {
   font-family: inherit;
-  font-size: 0.78rem;
-  padding: 6px 12px;
+  font-size: 0.72rem;
+  padding: 5px 8px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--text);
   cursor: pointer;
+  min-width: 0;
+  max-width: 120px;
 }
 .dash-filter-count {
   font-size: 0.7rem;
   color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: 4px;
 }
 
 /* ---- Session table ---- */
@@ -1258,31 +1263,58 @@ function renderHeatmap() {
   document.getElementById('dash-heatmap-body').innerHTML = '<div class="dash-heatmap-container">' + rows + '</div>';
 }
 
-function renderSessionRecords(filterCamp) {
+function renderSessionRecords(filters) {
   var sessions = getSessions();
   if (sessions.length === 0) {
     document.getElementById('dash-sessions-body').innerHTML = '<div class="dash-empty">暂无数据</div>';
     return;
   }
+  filters = filters || {};
 
-  // Build filter options from available camps
-  var campsInData = {};
-  sessions.forEach(function(s) { if (s.campKey) campsInData[s.campKey] = s.camp; });
-  var filterOpts = '<option value="">全部</option>';
-  for (var ck in campsInData) {
-    var sel = (filterCamp === ck) ? ' selected' : '';
-    filterOpts += '<option value="' + ck + '"' + sel + '>' + campsInData[ck] + '</option>';
+  // Collect unique values per column
+  var dates = {}, nicknames = {}, typeCodes = {}, camps = {};
+  sessions.forEach(function(s) {
+    var d = formatDate(s.first);
+    dates[d] = true;
+    if (s.nickname) nicknames[s.nickname] = (nicknames[s.nickname] || 0) + 1;
+    if (s.typeCode) typeCodes[s.typeCode] = true;
+    if (s.campKey) camps[s.campKey] = s.camp;
+  });
+
+  // Build dropdown helper
+  function buildSelect(id, values, selected, labelMap) {
+    var opts = '<option value="">全部</option>';
+    var keys = Object.keys(values).sort();
+    if (labelMap) {
+      // For camps, sort by camp name
+      keys = Object.keys(values);
+    }
+    keys.forEach(function(k) {
+      var label = labelMap ? values[k] : (k + (values[k] > 1 ? ' (' + values[k] + ')' : ''));
+      var sel = (selected === k) ? ' selected' : '';
+      opts += '<option value="' + k + '"' + sel + '>' + label + '</option>';
+    });
+    return '<select id="' + id + '" onchange="onSessionFilter()">' + opts + '</select>';
   }
 
-  // Filter bar
-  var h = '<div class="dash-filter-bar"><select id="session-filter-camp" onchange="onSessionFilter()">' + filterOpts + '</select><span class="dash-filter-count" id="session-filter-count"></span></div>';
+  // Filter bar — one dropdown per column
+  var h = '<div class="dash-filter-bar">' +
+    buildSelect('session-filter-date', dates, filters.date, null) +
+    buildSelect('session-filter-role', nicknames, filters.nickname, null) +
+    buildSelect('session-filter-type', typeCodes, filters.typeCode, null) +
+    buildSelect('session-filter-camp', camps, filters.camp, camps) +
+    '<span class="dash-filter-count" id="session-filter-count"></span>' +
+    '</div>';
 
   // Table
   h += '<table class="dash-session-table"><thead><tr><th>日期</th><th>角色</th><th>结果</th><th>阵营</th><th>事件</th></tr></thead><tbody>';
 
   var filtered = 0;
   sessions.forEach(function(s) {
-    if (filterCamp && s.campKey !== filterCamp) return;
+    if (filters.date && formatDate(s.first) !== filters.date) return;
+    if (filters.nickname && s.nickname !== filters.nickname) return;
+    if (filters.typeCode && s.typeCode !== filters.typeCode) return;
+    if (filters.camp && s.campKey !== filters.camp) return;
     filtered++;
     var color = s.campKey ? campColorCSS(s.campKey) : 'var(--text)';
     h += '<tr>';
@@ -1299,8 +1331,13 @@ function renderSessionRecords(filterCamp) {
 }
 
 function onSessionFilter() {
-  var sel = document.getElementById('session-filter-camp');
-  renderSessionRecords(sel.value);
+  var filters = {
+    date:     document.getElementById('session-filter-date').value,
+    nickname: document.getElementById('session-filter-role').value,
+    typeCode: document.getElementById('session-filter-type').value,
+    camp:     document.getElementById('session-filter-camp').value
+  };
+  renderSessionRecords(filters);
 }
 
 function renderStorageInfo() {
