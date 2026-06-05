@@ -924,10 +924,7 @@ body {
 /* ---- Quote box (fixed height, vertically centered) ---- */
 .fsc-quote-box {
   margin-top: 44px;
-  height: 88px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 100px;
   max-width: 520px;
   width: 100%;
   overflow: hidden;
@@ -937,8 +934,9 @@ body {
   font-style: italic;
   color: #5c5850;
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.7;
   letter-spacing: 0.04em;
+  padding-top: 8px;
 }
 .fsc-quote::before { content: '\201C'; }
 .fsc-quote::after  { content: '\201D'; }
@@ -970,26 +968,19 @@ body {
 .fsc-qr-label {
   font-size: 12px;
   color: #b8b4ac;
-  margin-top: 8px;
   letter-spacing: 0.06em;
   height: 32px;
-  line-height: 1.5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 32px;
   overflow: hidden;
+  white-space: nowrap;
 }
 .fsc-brand {
-  margin-top: 8px;
   font-size: 14px;
   color: #b8b4ac;
   letter-spacing: 0.04em;
   text-align: center;
   line-height: 1.8;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 54px;
   overflow: hidden;
 }
 
@@ -2441,6 +2432,8 @@ async function generateLongImage() {
 
     var avatarSVG = getAvatarSVG(r.code4, campHex);
     var tagline = TAGLINES[r.code4] || '';
+    // Truncate to prevent wrapping in the fixed 520px quote box (22px font)
+    if (tagline.length > 14) tagline = tagline.slice(0, 14);
     var qrDataURL = generateQRDataURL(
       'https://binarynomadjoe.github.io/TBTI/?ref=qr',
       110, '#1a1a1a', '#ffffff'
