@@ -713,6 +713,58 @@ body {
   letter-spacing: 0.03em;
 }
 
+/* ---- Card image preview overlay ---- */
+.card-preview-container {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 16px 16px 20px;
+  max-width: 92vw;
+  width: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.card-preview-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.card-preview-image {
+  width: 100%;
+  max-width: 85vw;
+  max-height: 70vh;
+  height: auto;
+  border-radius: 4px;
+  display: block;
+  object-fit: contain;
+}
+.card-preview-hint {
+  font-size: 0.85rem;
+  color: #8c8880;
+  margin-top: 14px;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.card-preview-download {
+  margin-top: 10px;
+  font-size: 0.78rem !important;
+  padding: 10px 24px !important;
+}
+
 /* ============================================================
    GLOBAL SIGNATURE
    ============================================================ */
@@ -1022,10 +1074,20 @@ body {
     </div>
   </div>
 
-  <!-- Loading overlay for long-image generation -->
+  <!-- Loading overlay for card generation -->
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner"></div>
     <span>正在生成卡片…</span>
+  </div>
+
+  <!-- Card image preview overlay (long-press to save) -->
+  <div class="overlay" id="card-preview-overlay" onclick="hideCardPreview(event)">
+    <div class="card-preview-container" id="card-preview-container" onclick="event.stopPropagation()">
+      <button class="card-preview-close" onclick="hideCardPreview()">✕</button>
+      <img class="card-preview-image" id="card-preview-image" alt="分享卡片" />
+      <div class="card-preview-hint">长按图片保存到相册</div>
+      <button class="btn btn-primary card-preview-download" id="card-preview-download" onclick="downloadCardImage()">下载图片（桌面端）</button>
+    </div>
   </div>
 
 </div><!-- /app -->
@@ -2358,10 +2420,10 @@ async function generateLongImage() {
   var overlay = $('loading-overlay');
   var target = $('share-card-target');
   overlay.classList.add('active');
-  TRACKER.track('image', { typeCode: r.code4, nickname: p.nickname });
 
   try {
     var p = r.personality;
+    TRACKER.track('image', { typeCode: r.code4, nickname: p.nickname });
     var campColor = CAMP_CSS_VARS[p.campKey];
     var campHex = resolveCampHex(p.campKey);
 
@@ -2416,29 +2478,48 @@ async function generateLongImage() {
     // Wait for layout + font painting + QR img load
     await new Promise(function(resolve) { setTimeout(resolve, 600); });
 
-    // Capture with dom-to-image-more — scale:2 doubles output to ~1500px PNG
-    var blob = await domtoimage.toBlob(target, {
+    // Capture with dom-to-image-more as PNG data URL (works in all browsers incl. WeChat)
+    var dataUrl = await domtoimage.toPng(target, {
       bgcolor: '#ffffff',
       style: { backgroundColor: '#ffffff' },
       quality: 1.0,
       scale: 2
     });
 
-    // Download
-    var filename = r.fullCode + '_' + p.nickname + '_TBTI.png';
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement('a');
-    link.download = filename;
-    link.href = url;
-    link.click();
-    setTimeout(function() { URL.revokeObjectURL(url); }, 2000);
+    // Hide loading, show preview overlay for long-press save
+    overlay.classList.remove('active');
+
+    // Store for download fallback
+    window._cardDataUrl = dataUrl;
+    window._cardFilename = r.fullCode + '_' + p.nickname + '_TBTI.png';
+
+    var previewImg = document.getElementById('card-preview-image');
+    previewImg.src = dataUrl;
+    previewImg.alt = window._cardFilename;
+    document.getElementById('card-preview-overlay').classList.add('active');
 
   } catch (err) {
+    overlay.classList.remove('active');
     console.error('卡片生成失败:', err);
     alert('卡片生成失败，请重试。');
-  } finally {
-    overlay.classList.remove('active');
   }
+}
+
+/* Hide card preview overlay */
+function hideCardPreview(e) {
+  if (e && e.target !== document.getElementById('card-preview-overlay')) return;
+  document.getElementById('card-preview-overlay').classList.remove('active');
+  // Release blob URL if any
+  if (window._cardBlobUrl) { URL.revokeObjectURL(window._cardBlobUrl); window._cardBlobUrl = null; }
+}
+
+/* Download card image (desktop fallback) */
+function downloadCardImage() {
+  if (!window._cardDataUrl) return;
+  var link = document.createElement('a');
+  link.download = window._cardFilename || 'TBTI_share.png';
+  link.href = window._cardDataUrl;
+  link.click();
 }
 
 /* ============================================================
